@@ -15,11 +15,6 @@ CREATE TABLE instructions (
     step INTEGER NOT NULL
 );
 
-CREATE TABLE ingredient (
-    ingredient_id SERIAL PRIMARY KEY,
-    ingredient_name VARCHAR(255) NOT NULL
-);
-
 CREATE TABLE recipe (
     recipe_id SERIAL PRIMARY KEY,
     instructions_id INTEGER REFERENCES instructions(instructions_id),
@@ -28,6 +23,12 @@ CREATE TABLE recipe (
     diet Diet,
     dish Dish,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE ingredient (
+    ingredient_id SERIAL PRIMARY KEY,
+    ingredient_name VARCHAR(255) NOT NULL,
+	recipe_id INTEGER REFERENCES recipe(recipe_id)
 );
 
 CREATE TABLE recipe_ingredients (
