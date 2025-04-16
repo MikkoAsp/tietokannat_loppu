@@ -8,8 +8,8 @@ namespace BaseConsoleApp
 {
     public interface IDatabaseHandler
     {
-        public List<Recipe>? LoadFromDatabase();
-        public void SaveRecipesToDatabase(Recipe receivedRecipe);
-        public void UpdateRecipeInDatabase(List<Recipe> newRecipes);
+        public List<Localrecipe>? LoadFromDatabase();
+        public void SaveRecipesToDatabase(Localrecipe receivedRecipe);
+        public void UpdateRecipeInDatabase(List<Localrecipe> newRecipes);
     }
 }

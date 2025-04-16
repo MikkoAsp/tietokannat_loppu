@@ -5,15 +5,16 @@ using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using tietokannat_loppu.Entities;
 
 namespace BaseConsoleApp
 {
     public class RecipeHandlingManager : RecipeManager
     {
-        public RecipeHandlingManager(IDatabaseHandler handler, IAskDetails helper) : base(helper, handler)
+        public RecipeHandlingManager(IDatabaseHandler handler, IAskDetails helper, TietokannatLoppuContext context) : base(helper, handler, context)
         {
         }
-        public override List<Recipe> SearchRecipesByIngredients(List<string> searchedIngredients)
+        public override List<Localrecipe> SearchRecipesByIngredients(List<string> searchedIngredients)
         {
             return allRecipes;
         }

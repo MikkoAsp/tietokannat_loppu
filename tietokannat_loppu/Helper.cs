@@ -93,7 +93,7 @@
                 return selectedEnumValue;
             }
         }
-        public void InfoUser(Recipe recipe)
+        public void InfoUser(Localrecipe recipe)
         {
             string dietString = (recipe.Diet != Diet.None) ? FormatEnumDisplayName(recipe.Diet) : "";
             Console.WriteLine($"\nNew {dietString} {FormatEnumDisplayName(recipe.Dish)} {recipe.Name} recipe added with ingredients: ");

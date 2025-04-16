@@ -1,20 +1,23 @@
 ﻿namespace BaseConsoleApp
 {
+    using Microsoft.EntityFrameworkCore;
     using System;
+    using tietokannat_loppu.Entities;
 
     public abstract class RecipeManager
     {
-        protected List<Recipe> allRecipes = new();
-        public List<Recipe> AllRecipes { get => allRecipes; set => allRecipes = value; }
+        protected List<Localrecipe> allRecipes = new();
+        public List<Localrecipe> AllRecipes { get => allRecipes; set => allRecipes = value; }
         protected IAskDetails detailsHelper;
         protected IDatabaseHandler databaseHandler;
-
-        public RecipeManager(IAskDetails detailsHelper, IDatabaseHandler databaseHandler)
+        TietokannatLoppuContext dbContext;
+        public RecipeManager(IAskDetails detailsHelper, IDatabaseHandler databaseHandler, TietokannatLoppuContext context)
         {
+            dbContext = context;
             this.databaseHandler = databaseHandler;
             this.detailsHelper = detailsHelper;
         }
-        public void PrintRecipe(List<Recipe> recipesToPrint)
+        public void PrintRecipe(List<Localrecipe> recipesToPrint)
         {
             if (recipesToPrint.Count() == 0)
             {
@@ -100,15 +103,26 @@
                     Console.WriteLine("Returning Back To Menu...");
                     break;
                 }
-                Recipe recipe = new Recipe(recipeName, (Dish)dish, addedIngredients, addedInstructions, (Diet)diet);
+
+                Localrecipe recipe = new Localrecipe(recipeName, (Dish)dish, addedIngredients, addedInstructions, (Diet)diet);
+                detailsHelper.InfoUser(recipe);
 
                 //TODO: save recipe to database
 
-                detailsHelper.InfoUser(recipe);
+                var dbRecipe = new Recipe
+                {
+                    UserId = 1,
+                    RecipeName = recipeName,
+                    Dish = (Dish)dish,
+                    Diet = (Diet)diet,
+                    CreatedAt = DateTime.Now,
+                };
+                dbContext.Recipes.Add(dbRecipe);
+                dbContext.SaveChanges();
                 break;
             }
         }
-        public abstract List<Recipe> SearchRecipesByIngredients(List<string> searchedIngredients);
+        public abstract List<Localrecipe> SearchRecipesByIngredients(List<string> searchedIngredients);
         public abstract void SearchRecipesByDishes();
         public abstract void UpdateRecipe();
         public abstract void SearchRecipesByDiets();

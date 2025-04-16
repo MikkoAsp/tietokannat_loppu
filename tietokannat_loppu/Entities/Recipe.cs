@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using BaseConsoleApp;
 
 namespace tietokannat_loppu.Entities;
+
 
 public partial class Recipe
 {
@@ -12,6 +14,9 @@ public partial class Recipe
     public int? UserId { get; set; }
 
     public string RecipeName { get; set; } = null!;
+
+    public Dish Dish { get; set; }
+    public Diet Diet { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 

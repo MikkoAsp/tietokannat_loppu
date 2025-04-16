@@ -1,4 +1,6 @@
-﻿namespace BaseConsoleApp
+﻿using tietokannat_loppu.Entities;
+
+namespace BaseConsoleApp
 {
     internal class Menu
     {
@@ -7,7 +9,8 @@
             bool running = true;
             IDatabaseHandler handler = new DatabaseManager();
             IAskDetails helper = new Helper();
-            RecipeManager recipeHandling = new RecipeHandlingManager(handler, helper);
+            TietokannatLoppuContext context = new();
+            RecipeManager recipeHandling = new RecipeHandlingManager(handler, helper, context);
 
             while (running)
             {

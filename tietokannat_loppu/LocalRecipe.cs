@@ -26,7 +26,7 @@ namespace BaseConsoleApp
         LactoseFree = 6,
         GlutenFree = 7
     }
-    public class Recipe
+    public class Localrecipe
     {
         private string name;
         public string Name => name;
@@ -40,7 +40,7 @@ namespace BaseConsoleApp
         private List<string> instructions = new();
         public List<string> Instructions => instructions;
 
-        public Recipe(string name, Dish dish, List<string> ingredients,List<string>instructions , Diet diet)
+        public Localrecipe(string name, Dish dish, List<string> ingredients,List<string>instructions , Diet diet)
         {
             this.name = name;
             this.dish = dish;

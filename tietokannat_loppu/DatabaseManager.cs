@@ -5,15 +5,15 @@ namespace BaseConsoleApp
 {
     public class DatabaseManager : IDatabaseHandler
     {
-        public List<Recipe>? LoadFromDatabase()
+        public List<Localrecipe>? LoadFromDatabase()
         {
-            return new List<Recipe>();
+            return new List<Localrecipe>();
         }
-        public void SaveRecipesToDatabase(Recipe receivedRecipe)
+        public void SaveRecipesToDatabase(Localrecipe receivedRecipe)
         {
         
         }
-        public void UpdateRecipeInDatabase(List<Recipe> newRecipes)
+        public void UpdateRecipeInDatabase(List<Localrecipe> newRecipes)
         {
           
         }
