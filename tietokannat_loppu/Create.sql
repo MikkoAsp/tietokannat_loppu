@@ -28,7 +28,7 @@ CREATE TABLE recipe (
 CREATE TABLE ingredient (
     ingredient_id SERIAL PRIMARY KEY,
     ingredient_name VARCHAR(255) NOT NULL,
-	recipe_id INTEGER REFERENCES recipe(recipe_id)
+    recipe_id INTEGER REFERENCES recipe(recipe_id)
 );
 
 CREATE TABLE recipe_ingredients (
