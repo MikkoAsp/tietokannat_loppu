@@ -11,7 +11,7 @@ namespace BaseConsoleApp
 {
     public class RecipeHandlingManager : RecipeManager
     {
-        public RecipeHandlingManager(IDatabaseHandler handler, IAskDetails helper, TietokannatLoppuContext context) : base(helper, handler, context)
+        public RecipeHandlingManager(IDatabaseHandler handler, IAskDetails helper) : base(helper, handler)
         {
         }
         public override List<Localrecipe> SearchRecipesByIngredients(List<string> searchedIngredients)

@@ -4,20 +4,23 @@ namespace BaseConsoleApp
 {
     internal class Menu
     {
-        public async Task StartMenu()
+        public async Task StartMenu(LocalUser user)
         {
             bool running = true;
-            IDatabaseHandler handler = new DatabaseManager();
-            IAskDetails helper = new Helper();
             TietokannatLoppuContext context = new();
-            RecipeManager recipeHandling = new RecipeHandlingManager(handler, helper, context);
+            IDatabaseHandler handler = new DatabaseManager(context);
+            IAskDetails helper = new Helper();
 
+            RecipeManager recipeHandling = new RecipeHandlingManager(handler, helper);
+
+
+            await handler.AddUserToDb(user);
             while (running)
             {
-                switch (PrintMenuOptions())
+                switch (PrintMenuOptions(user))
                 {
                     case 0:
-                        await recipeHandling.AddNewRecipe();
+                        await recipeHandling.AddNewRecipe(user);
                         break;
                     case 1:
                         recipeHandling.ShowAllRecipes();
@@ -41,7 +44,7 @@ namespace BaseConsoleApp
                         running = false;
                         break;
                     case 8:
-                        await handler.SaveRecipesToDatabaseAsync(new Localrecipe("DebugTest", Dish.Main, new List<string> {"DebugIngredient 1", "DebugIngredient 2"}, new List<string> {"Step 1", "Step 2"}, Diet.Meat),context);
+                        await handler.SaveRecipesToDatabaseAsync(new Localrecipe("DebugTest", Dish.Main, new List<string> {"DebugIngredient 1", "DebugIngredient 2"}, new List<string> {"Step 1", "Step 2"}, Diet.Meat), user);
                         Console.WriteLine("DONE");
                         break;
                 }
@@ -50,7 +53,7 @@ namespace BaseConsoleApp
             }
 
         }
-        private int PrintMenuOptions()
+        private int PrintMenuOptions(LocalUser user)
         {
             string[] options = { "1. Add a new recipe", "2. Show all recipes", "3. Update a recipe" ,"4. Delete A Recipe With Id", "5. Search For Recipes By Ingredients", "6. Search For Recipes By Dish", "7. Search For Recipes Based On Diet","8. End Program", "9. Debug: SaveToDb" };
             int currentIndex = 0;
@@ -58,7 +61,9 @@ namespace BaseConsoleApp
             do
             {
                 Console.Clear();
-                Console.WriteLine("Select Function You Want To Use (Use Arrow Keys, Numbers 1-8, and Enter):");
+                Console.WriteLine("Username: " + user.UserName);
+                Console.WriteLine("Email: " + user.Email);
+                Console.WriteLine("\nSelect Function You Want To Use (Use Arrow Keys, Numbers 1-8, and Enter):");
 
                 for (int i = 0; i < options.Length; i++)
                 {

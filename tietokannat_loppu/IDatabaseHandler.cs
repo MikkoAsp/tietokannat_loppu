@@ -12,6 +12,8 @@ namespace BaseConsoleApp
         public List<Localrecipe>? LoadFromDatabase();
         public void UpdateRecipeInDatabase(List<Localrecipe> newRecipes);
 
-        public Task SaveRecipesToDatabaseAsync(Localrecipe localrecipe, TietokannatLoppuContext dbContext);
+        public Task SaveRecipesToDatabaseAsync(Localrecipe localrecipe, LocalUser localUser);
+
+        public Task AddUserToDb(LocalUser newUser);
     }
 }

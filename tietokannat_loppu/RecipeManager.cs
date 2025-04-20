@@ -10,10 +10,8 @@
         public List<Localrecipe> AllRecipes { get => allRecipes; set => allRecipes = value; }
         protected IAskDetails detailsHelper;
         protected IDatabaseHandler databaseHandler;
-        TietokannatLoppuContext dbContext;
-        public RecipeManager(IAskDetails detailsHelper, IDatabaseHandler databaseHandler, TietokannatLoppuContext context)
+        public RecipeManager(IAskDetails detailsHelper, IDatabaseHandler databaseHandler)
         {
-            dbContext = context;
             this.databaseHandler = databaseHandler;
             this.detailsHelper = detailsHelper;
         }
@@ -79,7 +77,7 @@
             PrintRecipe(allRecipes);
             Console.WriteLine("------------------------------------------------------------");
         }
-        public async Task AddNewRecipe()
+        public async Task AddNewRecipe(LocalUser user)
         {
             while (true)
             {
@@ -108,7 +106,7 @@
                 detailsHelper.InfoUser(recipe);
 
                 //TODO: save recipe to database
-                await databaseHandler.SaveRecipesToDatabaseAsync(recipe, dbContext);
+                await databaseHandler.SaveRecipesToDatabaseAsync(recipe, user);
 
                 break;
             }
