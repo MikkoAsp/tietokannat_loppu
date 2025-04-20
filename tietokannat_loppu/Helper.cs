@@ -1,4 +1,5 @@
-﻿namespace BaseConsoleApp
+﻿using tietokannat_loppu.Entities;
+namespace BaseConsoleApp
 {
     public class Helper : IAskDetails
     {

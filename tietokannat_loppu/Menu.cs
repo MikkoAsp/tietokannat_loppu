@@ -4,7 +4,7 @@ namespace BaseConsoleApp
 {
     internal class Menu
     {
-        public void StartMenu()
+        public async Task StartMenu()
         {
             bool running = true;
             IDatabaseHandler handler = new DatabaseManager();
@@ -17,7 +17,7 @@ namespace BaseConsoleApp
                 switch (PrintMenuOptions())
                 {
                     case 0:
-                        recipeHandling.AddNewRecipe();
+                        await recipeHandling.AddNewRecipe();
                         break;
                     case 1:
                         recipeHandling.ShowAllRecipes();
@@ -40,6 +40,10 @@ namespace BaseConsoleApp
                     case 7:
                         running = false;
                         break;
+                    case 8:
+                        await handler.SaveRecipesToDatabaseAsync(new Localrecipe("DebugTest", Dish.Main, new List<string> {"DebugIngredient 1", "DebugIngredient 2"}, new List<string> {"Step 1", "Step 2"}, Diet.Meat),context);
+                        Console.WriteLine("DONE");
+                        break;
                 }
                 Console.WriteLine("Press any key to continue.");
                 Console.ReadLine();
@@ -48,7 +52,7 @@ namespace BaseConsoleApp
         }
         private int PrintMenuOptions()
         {
-            string[] options = { "1. Add a new recipe", "2. Show all recipes", "3. Update a recipe" ,"4. Delete A Recipe With Id", "5. Search For Recipes By Ingredients", "6. Search For Recipes By Dish", "7. Search For Recipes Based On Diet","8. End Program" };
+            string[] options = { "1. Add a new recipe", "2. Show all recipes", "3. Update a recipe" ,"4. Delete A Recipe With Id", "5. Search For Recipes By Ingredients", "6. Search For Recipes By Dish", "7. Search For Recipes Based On Diet","8. End Program", "9. Debug: SaveToDb" };
             int currentIndex = 0;
             ConsoleKey keyPressed;
             do

@@ -79,7 +79,7 @@
             PrintRecipe(allRecipes);
             Console.WriteLine("------------------------------------------------------------");
         }
-        public void AddNewRecipe()
+        public async Task AddNewRecipe()
         {
             while (true)
             {
@@ -108,17 +108,8 @@
                 detailsHelper.InfoUser(recipe);
 
                 //TODO: save recipe to database
+                await databaseHandler.SaveRecipesToDatabaseAsync(recipe, dbContext);
 
-                var dbRecipe = new Recipe
-                {
-                    UserId = 1,
-                    RecipeName = recipeName,
-                    Dish = (Dish)dish,
-                    Diet = (Diet)diet,
-                    CreatedAt = DateTime.Now,
-                };
-                dbContext.Recipes.Add(dbRecipe);
-                dbContext.SaveChanges();
                 break;
             }
         }
