@@ -6,9 +6,9 @@ using static CrypticWizard.RandomWordGenerator.WordGenerator;
 namespace BaseConsoleApp
 {
     //Default login account used:
-    //uglyvaintoad@hotmail.com
-    //mxg595i85f36w21f75a0
-    //user id = 7
+    //Jarkko.Jarmonen@gmail.com
+    //JarkonKokkaukset27
+    //user id = 1
     internal class Menu
     {
         IAskDetails helper = new Helper();
@@ -113,7 +113,7 @@ namespace BaseConsoleApp
                 }
                 else if(option == LoginOption.DebugLogin)
                 {
-                    return LoginUser("uglyvaintoad@hotmail.com", "mxg595i85f36w21f75a0");
+                    return LoginUser("Jarkko.Jarmonen@gmail.com", "JarkonKokkaukset27");
                 }
             }
             throw new Exception("Unexpected error during login.");
