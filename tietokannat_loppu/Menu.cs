@@ -8,19 +8,20 @@ namespace BaseConsoleApp
     //Default login account used:
     //uglyvaintoad@hotmail.com
     //mxg595i85f36w21f75a0
+    //user id = 7
     internal class Menu
     {
         IAskDetails helper = new Helper();
         IDatabaseHandler dbHandler;
         RecipeManager recipeHandler;
-        TietokannatLoppuContext context = new();
+        TietokannatLoppuContext dbContext = new();
         bool running = true;
         LocalUser user;
 
         string[] possibleMenuOptions = { "1. Add a new recipe", "2. Show all recipes", "3. Update a recipe", "4. Delete A Recipe With Id", "5. Search For Recipes By Ingredients", "6. Search For Recipes By Dish", "7. Search For Recipes Based On Diet", "8. End Program", "9. Debug: SaveToDb" };
         public Menu()
         {
-            dbHandler = new DatabaseManager(context);
+            dbHandler = new DatabaseManager(dbContext);
             recipeHandler = new RecipeHandlingManager(dbHandler, helper);
         }
 
@@ -81,9 +82,23 @@ namespace BaseConsoleApp
 
                 if (option == LoginOption.Login)
                 {
-                    user = CreateRandomUser();
-                    await dbHandler.AddUserToDb(user);
-                    return user;
+                    while (true)
+                    {
+                        user = CreateRandomUser();
+
+                        //Make sure there isn't already a user with this email
+                        var userExistsWithEmail = dbContext.Users.FirstOrDefault(u => u.Email == user.Email);
+                        if(userExistsWithEmail == null)
+                        {
+                            await dbHandler.AddUserToDb(user);
+                            return user;
+                        }
+                        else
+                        {
+                            Console.WriteLine("User already exists in db");
+                            Console.ReadLine();
+                        }
+                    }
                 }
                 else if(option == LoginOption.CreateUser)
                 {
@@ -150,7 +165,7 @@ namespace BaseConsoleApp
         }
         private LocalUser? LoginUser(string email, string password)
         {
-            var user = context.Users.FirstOrDefault(u => u.Email == email && u.Password == password);
+            var user = dbContext.Users.FirstOrDefault(u => u.Email == email && u.Password == password);
             if(user != null)
             {
                 Console.WriteLine("Login success");
