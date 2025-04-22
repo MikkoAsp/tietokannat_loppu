@@ -28,8 +28,10 @@ namespace BaseConsoleApp
             Console.ReadLine();
         }
 
-        public List<Localrecipe>? LoadFromDatabase()
+        public async Task<List<Localrecipe>?> LoadFromDatabase()
         {
+            var list = await dbContext.Recipes.Where(x => x.UserId == 1).ToListAsync();
+            
             return new List<Localrecipe>();
         }
         public async Task SaveRecipesToDatabaseAsync(Localrecipe localrecipe, LocalUser localUser)
