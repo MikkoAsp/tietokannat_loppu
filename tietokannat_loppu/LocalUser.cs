@@ -8,6 +8,8 @@ namespace BaseConsoleApp
 {
     public class LocalUser
     {
+        int id;
+        public int Id => id;
         string userName;
         public string UserName => userName;
 
@@ -16,8 +18,10 @@ namespace BaseConsoleApp
 
         string password;
         public string Password => password;
-        public LocalUser(string userName, string email, string password)
+
+        public LocalUser(int id, string userName, string email, string password)
         {
+            this.id = id;
             this.userName = userName;
             this.email = email;
             this.password = password;

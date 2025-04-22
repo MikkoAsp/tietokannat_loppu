@@ -12,27 +12,29 @@ namespace BaseConsoleApp
         {
             dbContext = contex;
         }
-        public async Task AddUserToDb(LocalUser newUser)
+        public async Task<User> AddUserToDb(string email, string password, string username)
         {
             var userToSave = new User
             {
-                Username = newUser.UserName,
-                Email = newUser.Email,
+                Username = username,
+                Email = email,
                 CreatedAt = DateTime.UtcNow,
-                Password = newUser.Password
+                Password = password
             };
 
             dbContext.Users.Add(userToSave);
             await dbContext.SaveChangesAsync();
-            Console.WriteLine("New user created");
+            Console.WriteLine("New user created with id " + userToSave.UserId);
             Console.ReadLine();
+            return userToSave;
         }
 
-        public async Task<List<Localrecipe>?> LoadFromDatabase()
+        public async Task<List<Recipe>?> LoadFromDatabase(LocalUser user)
         {
-            var list = await dbContext.Recipes.Where(x => x.UserId == 1).ToListAsync();
-            
-            return new List<Localrecipe>();
+            Console.WriteLine("Looking for recipes with id: " + user.Id);
+            var list = await dbContext.Recipes.Where(x => x.UserId == user.Id).ToListAsync();
+
+            return list;
         }
         public async Task SaveRecipesToDatabaseAsync(Localrecipe localrecipe, LocalUser localUser)
         {

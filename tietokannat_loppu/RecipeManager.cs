@@ -61,15 +61,15 @@
             }
         }
 
-        public void ShowAllRecipes()
+        public void ShowAllRecipes(LocalUser user)
         {
             //Todo: load recipes from db and save them to a list of allRecipes
 
-            var recipes = databaseHandler.LoadFromDatabase();
+            var recipes = databaseHandler.LoadFromDatabase(user);
 
             foreach (var recipe in recipes.Result)
             {
-                Console.WriteLine(recipe.Name);
+                Console.WriteLine(recipe.RecipeName);
             }
 
 

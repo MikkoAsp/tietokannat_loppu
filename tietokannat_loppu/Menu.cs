@@ -28,7 +28,7 @@ namespace BaseConsoleApp
         public async Task StartMenu()
         {
             user = AskLoginOptions().Result;
-            string loginDetails = $"Login as:{user.UserName}\nEmail:{user.Email}\n";
+            string loginDetails = $"Login as:{user.UserName}\nEmail:{user.Email}\nId:{user.Id}\n";
             while (running)
             {
                 MenuOption menuOption = (MenuOption)PrintMenuOptions(possibleMenuOptions, loginDetails);
@@ -38,7 +38,7 @@ namespace BaseConsoleApp
                         await recipeHandler.AddNewRecipe(user);
                         break;
                     case MenuOption.ShowAllRecipes:
-                        recipeHandler.ShowAllRecipes();
+                        recipeHandler.ShowAllRecipes(user);
                         break;
                     case MenuOption.UpdateRecipe:
                         recipeHandler.UpdateRecipe();
@@ -80,27 +80,11 @@ namespace BaseConsoleApp
                 string[] loginOptions = { "Create new user", "Login to Existing user","Debug: login to default account" };
                 LoginOption option = (LoginOption)PrintMenuOptions(loginOptions, "Login to existing user with email and password or create a new user.\n");
 
-                if (option == LoginOption.Login)
+                if (option == LoginOption.CreateUser)
                 {
-                    while (true)
-                    {
-                        user = CreateRandomUser();
-
-                        //Make sure there isn't already a user with this email
-                        var userExistsWithEmail = dbContext.Users.FirstOrDefault(u => u.Email == user.Email);
-                        if(userExistsWithEmail == null)
-                        {
-                            await dbHandler.AddUserToDb(user);
-                            return user;
-                        }
-                        else
-                        {
-                            Console.WriteLine("User already exists in db");
-                            Console.ReadLine();
-                        }
-                    }
+                    return user = CreateRandomUser().Result;
                 }
-                else if(option == LoginOption.CreateUser)
+                else if(option == LoginOption.Login)
                 {
                     string email = helper.AskString("Enter email: ");
                     string password = helper.AskString("Enter password: ");
@@ -170,7 +154,7 @@ namespace BaseConsoleApp
             {
                 Console.WriteLine("Login success");
                 Console.ReadLine();
-                return new LocalUser(user.Username, user.Email, user.Password);
+                return new LocalUser(user.UserId,user.Username, user.Email, user.Password);
             }
             else
             {
@@ -179,29 +163,42 @@ namespace BaseConsoleApp
                 return null;
             }
         }
-        private LocalUser CreateRandomUser()
+        private async Task<LocalUser> CreateRandomUser()
         {
             WordGenerator generator = new WordGenerator();
-            string start = generator.GetWord(PartOfSpeech.adj);
-            string middle = generator.GetWord(PartOfSpeech.adj);
-            string end = generator.GetWord(PartOfSpeech.noun);
+            while (true)
+            {
+                string start = generator.GetWord(PartOfSpeech.adj);
+                string middle = generator.GetWord(PartOfSpeech.adj);
+                string end = generator.GetWord(PartOfSpeech.noun);
 
-            string userName = $"{start} {middle} {end}";
+                string userName = $"{start} {middle} {end}";
 
-            string[] options = { "@gmail.com", "@outlook.com", "@yahoo.com", "@hotmail.com", "@icloud.com", "@aol.com", "@zoho.com", "@protonmail.com" };
+                string[] options = { "@gmail.com", "@outlook.com", "@yahoo.com", "@hotmail.com", "@icloud.com", "@aol.com", "@zoho.com", "@protonmail.com" };
 
-            Random rand = new Random();
+                Random rand = new Random();
 
-            int value = rand.Next(0, options.Length);
+                int value = rand.Next(0, options.Length);
 
-            string emailOption = options[value];
+                string emailOption = options[value];
 
-            string email = start + middle + end + emailOption;
+                string email = start + middle + end + emailOption;
 
-            string password = GeneratePassword(rand);
+                string password = GeneratePassword(rand);
 
-
-            return new LocalUser(userName, email, password);
+                //Make sure there isn't already a user with this email
+                var userExistsWithEmail = dbContext.Users.FirstOrDefault(u => u.Email == email);
+                if (userExistsWithEmail == null)
+                {
+                    var user = await dbHandler.AddUserToDb(email, password, userName);
+                    return new LocalUser(user.UserId, userName, email, password);
+                }
+                else
+                {
+                    Console.WriteLine("User already exists in db");
+                    Console.ReadLine();
+                }
+            }
         }
         private string GeneratePassword(Random rand)
         {
@@ -229,8 +226,8 @@ namespace BaseConsoleApp
 
         private enum LoginOption
         {
-            Login = 0,
-            CreateUser = 1,
+            CreateUser = 0,
+            Login = 1,
             DebugLogin = 2
         }
         private enum MenuOption

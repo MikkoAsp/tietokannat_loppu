@@ -9,11 +9,11 @@ namespace BaseConsoleApp
 {
     public interface IDatabaseHandler
     {
-        public Task<List<Localrecipe>?> LoadFromDatabase();
+        public Task<List<Recipe>?> LoadFromDatabase(LocalUser user);
         public void UpdateRecipeInDatabase(List<Localrecipe> newRecipes);
 
         public Task SaveRecipesToDatabaseAsync(Localrecipe localrecipe, LocalUser localUser);
 
-        public Task AddUserToDb(LocalUser newUser);
+        public Task<User> AddUserToDb(string email, string password, string username);
     }
 }

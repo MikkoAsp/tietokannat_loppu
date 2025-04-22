@@ -58,7 +58,7 @@ public partial class TietokannatLoppuContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=Tietokannat_loppu;Username=postgres;Password=kouluhomma", o => o.MapEnum<Dish>("dish").MapEnum<Diet>("diet"));
+        optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=Tietokannat_loppu;Username=postgres;Password=admin", o => o.MapEnum<Dish>("dish").MapEnum<Diet>("diet"));
 
 
     }
