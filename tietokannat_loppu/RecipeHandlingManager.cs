@@ -40,7 +40,6 @@ namespace BaseConsoleApp
         {
             //Recipe id user wishes to delete
             int deletedRecipeId = detailsHelper.AskIntNumber("Enter the recipe id you wish to delete: ");
-           await databaseHandler.DeleteFromDatabase(deletedRecipeId);
 
             await databaseHandler.DeleteFromDb(deletedRecipeId);
         }
