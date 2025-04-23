@@ -2,20 +2,22 @@
 {
     using Microsoft.EntityFrameworkCore;
     using System;
+    using System.Collections.Generic;
     using tietokannat_loppu.Entities;
 
     public abstract class RecipeManager
     {
-        protected List<Localrecipe> allRecipes = new();
-        public List<Localrecipe> AllRecipes { get => allRecipes; set => allRecipes = value; }
+        protected List<Localrecipe> localRecipes = new();
+        protected List<Recipe?> dbRecipes = new();
+        public List<Localrecipe> LocalRecipes { get => localRecipes; set => localRecipes = value; }
         protected IAskDetails detailsHelper;
-        protected IDatabaseHandler databaseHandler;
+        protected IDatabaseHandler dbHandler;
         public RecipeManager(IAskDetails detailsHelper, IDatabaseHandler databaseHandler)
         {
-            this.databaseHandler = databaseHandler;
+            this.dbHandler = databaseHandler;
             this.detailsHelper = detailsHelper;
         }
-        public void PrintRecipe(List<Localrecipe> recipesToPrint)
+        public void PrintRecipe(List<Recipe?> recipesToPrint)
         {
             if (recipesToPrint.Count() == 0)
             {
@@ -27,26 +29,26 @@
             foreach (var recipe in recipesToPrint)
             {
                 string dietString = recipe.Diet != Diet.None ? $" || Diet: {detailsHelper.FormatEnumDisplayName(recipe.Diet)}" : "";
-                Console.WriteLine($"Name: {recipe.Name} || Dish: {detailsHelper.FormatEnumDisplayName(recipe.Dish)}{dietString}");
+                Console.WriteLine($"ID: {recipe.RecipeId} || Name: {recipe.RecipeName} || Dish: {detailsHelper.FormatEnumDisplayName(recipe.Dish)}{dietString}");
 
-                int ingredientCount = recipe.Ingredients.Count();
+                int ingredientCount = recipe.RecipeIngredients.Count();
                 Console.Write("\nIngredients: " + ingredientCount);
                 int pointer = 0;
                 Console.WriteLine();
-                foreach (var ingredient in recipe.Ingredients)
+                foreach (var ingredient in recipe.RecipeIngredients)
                 {
                     pointer++;
                     if (pointer == ingredientCount)
                     {
-                        Console.Write($"{ingredient}\n");
+                        Console.Write($"{ingredient.Ingredient.IngredientName}\n");
                     }
                     else if (pointer == ingredientCount - 1)
                     {
-                        Console.Write(ingredient + " ja ");
+                        Console.Write(ingredient.Ingredient.IngredientName + " and ");
                     }
                     else
                     {
-                        Console.Write($"{ingredient}, ");
+                        Console.Write($"{ingredient.Ingredient.IngredientName}, ");
                     }
 
                 }
@@ -55,7 +57,7 @@
                 foreach (var instruction in recipe.Instructions)
                 {
                     index++;
-                    Console.WriteLine($"{index}. {instruction}");
+                    Console.WriteLine($"{index}. {instruction.CookingInstructions}");
                 }
                 Console.WriteLine();
             }
@@ -63,28 +65,18 @@
 
         public void ShowAllRecipes(LocalUser user)
         {
-            //Todo: load recipes from db and save them to a list of allRecipes
+            var dbRecipes = dbHandler.LoadFromDatabase(user).Result;
 
-            var recipes = databaseHandler.LoadFromDatabase(user);
-
-            foreach (var recipe in recipes.Result)
+            if (dbRecipes == null || dbRecipes.Count == 0)
             {
-                Console.WriteLine(recipe.RecipeName);
-            }
-
-
-            Console.ReadLine();
-            Console.WriteLine();
-            if (allRecipes.Count() == 0)
-            {
-                Console.WriteLine("No recipes added.");
+                Console.WriteLine("No recipes added to database");
                 return;
             }
             Console.WriteLine("------------------------------------------------------------");
             Console.WriteLine("                      ALL RECIPES");
             Console.WriteLine("------------------------------------------------------------");
 
-            PrintRecipe(allRecipes);
+            PrintRecipe(dbRecipes);
             Console.WriteLine("------------------------------------------------------------");
         }
         public async Task AddNewRecipe(LocalUser user)
@@ -116,7 +108,7 @@
                 detailsHelper.InfoUser(recipe);
 
                 //TODO: save recipe to database
-                await databaseHandler.SaveRecipesToDatabaseAsync(recipe, user);
+                await dbHandler.SaveRecipesToDatabaseAsync(recipe, user);
 
                 break;
             }
@@ -125,6 +117,6 @@
         public abstract void SearchRecipesByDishes();
         public abstract void UpdateRecipe();
         public abstract void SearchRecipesByDiets();
-        public abstract Task DeleteRecipeWithId();
+        public abstract Task DeleteRecipeWithId(LocalUser localUser);
     }
 }

@@ -32,37 +32,19 @@ namespace BaseConsoleApp
         public async Task<List<Recipe>?> LoadFromDatabase(LocalUser user)
         {
             Console.WriteLine("Looking for recipes with id: " + user.Id);
-            var list = await dbContext.Recipes.Where(x => x.UserId == user.Id).Select(x => new
+
+            var listOfRecipes = await dbContext.Recipes
+                .Include(recipe => recipe.RecipeIngredients)
+                .ThenInclude(recipeIngredients => recipeIngredients.Ingredient)
+                .Include(recipe => recipe.Instructions)
+                .Where(recipe => recipe.UserId == user.Id)
+                .ToListAsync();
+
+            foreach(var item in listOfRecipes)
             {
-                RecipeName = x.RecipeName,
-                Dish = x.Dish,
-                Diet = x.Diet,
-                Ingredients = x.RecipeIngredients.Select(x => x.Ingredient.IngredientName).ToList(),
-                Instructions = x.Instructions.OrderBy(x => x.Step).ToList()
-            }).ToListAsync();
-
-
-            foreach(var item in list)
-            {
-                Console.WriteLine("Name: " + item.RecipeName);
-                Console.WriteLine("Diet:" + item.Diet);
-                Console.WriteLine("Dish: " + item.Dish);
-                Console.WriteLine("Ingredients: " + item.Ingredients.Count);
-
-                foreach(var ing in item.Ingredients)
-                {
-                    Console.WriteLine(ing);
-                }
-                Console.WriteLine("Instructions: ");
-                foreach(var ins in item.Instructions)
-                {
-                    Console.WriteLine("Step: " + ins.Step);
-                    Console.WriteLine("-" + ins.CookingInstructions);
-                }
-                Console.WriteLine();
+                item.Instructions = item.Instructions.OrderBy(instruction => instruction.Step).ToList();
             }
-            Console.ReadLine();
-            return null;
+            return listOfRecipes;
         }
         public async Task SaveRecipesToDatabaseAsync(Localrecipe localrecipe, LocalUser localUser)
         {
@@ -132,20 +114,28 @@ namespace BaseConsoleApp
           
         }
 
-        public async Task DeleteFromDb(int recipeId)
+        public async Task DeleteFromDb(int recipeId, LocalUser localUser)
         {
-            var itemToDelete = await dbContext.Recipes.FirstOrDefaultAsync(p => p.RecipeId == recipeId);
-
-            Console.WriteLine("Deleting recipe: " + itemToDelete.RecipeName);
-            Console.ReadLine();
+            var itemToDelete = await dbContext.Recipes.Where(x => x.UserId == localUser.Id).FirstOrDefaultAsync(p => p.RecipeId == recipeId);
 
             if(itemToDelete != null)
             {
+                Console.WriteLine("Deleting recipe: " + itemToDelete.RecipeName);
+                Console.ReadLine();
+
                 dbContext.Recipes.Remove(itemToDelete);
                 dbContext.SaveChanges();
-                Console.WriteLine("Item deleted");
+                Console.WriteLine("Item deleted successfully");
+                Console.ReadLine();
+
+            }
+            else
+            {
+                Console.WriteLine("Couldn't find recipe with your id");
                 Console.ReadLine();
             }
+
+
 
         }
     }

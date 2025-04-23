@@ -16,7 +16,7 @@ namespace BaseConsoleApp
         }
         public override List<Localrecipe> SearchRecipesByIngredients(List<string> searchedIngredients)
         {
-            return allRecipes;
+            return localRecipes;
         }
         public override void SearchRecipesByDishes()
         {
@@ -36,12 +36,12 @@ namespace BaseConsoleApp
              */
 
         }
-        public override async Task DeleteRecipeWithId()
+        public override async Task DeleteRecipeWithId(LocalUser localUser)
         {
-            //Recipe id user wishes to delete
+            //Recipe id user wishes to delete => maybe change this to the recipe name...
             int deletedRecipeId = detailsHelper.AskIntNumber("Enter the recipe id you wish to delete: ");
 
-            await databaseHandler.DeleteFromDb(deletedRecipeId);
+            await dbHandler.DeleteFromDb(deletedRecipeId, localUser);
         }
     }
 }

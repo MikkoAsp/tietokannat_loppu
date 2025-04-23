@@ -13,54 +13,57 @@ namespace BaseConsoleApp
     {
         IAskDetails helper = new Helper();
         IDatabaseHandler dbHandler;
-        RecipeManager recipeHandler;
+        RecipeManager recipeManager;
         TietokannatLoppuContext dbContext = new();
         bool running = true;
-        LocalUser user;
+        LocalUser localUser;
 
         string[] possibleMenuOptions = { "1. Add a new recipe", "2. Show all recipes", "3. Update a recipe", "4. Delete A Recipe With Id", "5. Search For Recipes By Ingredients", "6. Search For Recipes By Dish", "7. Search For Recipes Based On Diet", "8. End Program", "9. Debug: SaveToDb" };
         public Menu()
         {
             dbHandler = new DatabaseManager(dbContext);
-            recipeHandler = new RecipeHandlingManager(dbHandler, helper);
+            recipeManager = new RecipeHandlingManager(dbHandler, helper);
         }
 
         public async Task StartMenu()
         {
-            user = AskLoginOptions().Result;
-            string loginDetails = $"Login as:{user.UserName}\nEmail:{user.Email}\nId:{user.Id}\n";
+            //Get the user from login options => new user is created or user logins to the db
+            localUser = AskLoginOptions().Result;
+
+            string loginDetails = $"Login as:{localUser.UserName}\nEmail:{localUser.Email}\nId:{localUser.Id}\n";
             while (running)
             {
                 MenuOption menuOption = (MenuOption)PrintMenuOptions(possibleMenuOptions, loginDetails);
                 switch (menuOption)
                 {
                     case MenuOption.AddRecipe:
-                        await recipeHandler.AddNewRecipe(user);
+                        await recipeManager.AddNewRecipe(localUser);
                         break;
                     case MenuOption.ShowAllRecipes:
-                        recipeHandler.ShowAllRecipes(user);
+                        recipeManager.ShowAllRecipes(localUser);
                         break;
                     case MenuOption.UpdateRecipe:
-                        recipeHandler.UpdateRecipe();
+                        recipeManager.UpdateRecipe();
                         break;
                     case MenuOption.DeleteRecipe:
-                        await recipeHandler.DeleteRecipeWithId();
+                        await recipeManager.DeleteRecipeWithId(localUser);
                         break;
                     case MenuOption.SearchWithIngredients:
-                        recipeHandler.PrintRecipe(recipeHandler.SearchRecipesByIngredients(helper.AskRecipeIngredients()));
+                        //TODO FIX
+                        //recipeManager.PrintRecipe(recipeManager.SearchRecipesByIngredients(helper.AskRecipeIngredients()));
                         break;
                     case MenuOption.SearchWithDish:
-                        recipeHandler.SearchRecipesByDishes();
+                        recipeManager.SearchRecipesByDishes();
                         break;
                     case MenuOption.SearchWithDiet:
-                        recipeHandler.SearchRecipesByDiets();
+                        recipeManager.SearchRecipesByDiets();
                         break;
                     case MenuOption.EndProgram:
                         Console.WriteLine("Program ended");
                         running = false;
                         break;
                     case MenuOption.DebugSaveToDb:
-                        await dbHandler.SaveRecipesToDatabaseAsync(new Localrecipe("DebugTest", Dish.Main, new List<string> {"DebugIngredient 1", "DebugIngredient 2"}, new List<string> {"Step 1", "Step 2"}, Diet.Meat), user);
+                        await dbHandler.SaveRecipesToDatabaseAsync(new Localrecipe("DebugTest", Dish.Main, new List<string> {"DebugIngredient 1", "DebugIngredient 2"}, new List<string> {"Step 1", "Step 2"}, Diet.Meat), localUser);
                         Console.WriteLine("DONE");
                         break;
 
@@ -87,7 +90,7 @@ namespace BaseConsoleApp
                 {
                     string email = helper.AskString("Enter email: ");
                     string password = helper.AskString("Enter password: ");
-                    user = LoginUser(email, password);
+                    user = await LoginUser(email, password);
 
                     if(user != null)
                     {
@@ -96,11 +99,12 @@ namespace BaseConsoleApp
                 }
                 else if(option == LoginOption.DebugLogin)
                 {
-                    return LoginUser("Jarkko.Jarmonen@gmail.com", "JarkonKokkaukset27");
+                    return await LoginUser("Jarkko.Jarmonen@gmail.com", "JarkonKokkaukset27");
                 }
             }
             throw new Exception("Unexpected error during login.");
         }
+
         private int PrintMenuOptions(string[] options, string? msg = null)
         {
             int currentIndex = 0;
@@ -146,13 +150,16 @@ namespace BaseConsoleApp
             while (keyPressed != ConsoleKey.Enter);
             return currentIndex;
         }
-        private LocalUser? LoginUser(string email, string password)
+
+        private async Task<LocalUser?> LoginUser(string email, string password)
         {
-            var user = dbContext.Users.FirstOrDefault(u => u.Email == email && u.Password == password);
+            //Waiting for the user results from the database
+            var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
             if(user != null)
             {
-                Console.WriteLine("Login success");
+                Console.WriteLine("Login to " + user.Username + " is successful");
                 Console.ReadLine();
+                //Creating a new localuser and assigning the required values to its constructor
                 return new LocalUser(user.UserId,user.Username, user.Email, user.Password);
             }
             else
@@ -162,24 +169,25 @@ namespace BaseConsoleApp
                 return null;
             }
         }
+
         private async Task<LocalUser> CreateRandomUser()
         {
+            //Using cryptic wizards random word generator https://github.com/cryptic-wizard/random-word-generator
             WordGenerator generator = new WordGenerator();
+
+            //This stops when a new user is created
             while (true)
             {
+                Random rand = new Random();
                 string start = generator.GetWord(PartOfSpeech.adj);
                 string middle = generator.GetWord(PartOfSpeech.adj);
                 string end = generator.GetWord(PartOfSpeech.noun);
 
                 string userName = $"{start} {middle} {end}";
 
-                string[] options = { "@gmail.com", "@outlook.com", "@yahoo.com", "@hotmail.com", "@icloud.com", "@aol.com", "@zoho.com", "@protonmail.com" };
-
-                Random rand = new Random();
-
-                int value = rand.Next(0, options.Length);
-
-                string emailOption = options[value];
+                string[] emailOptions = { "@gmail.com", "@outlook.com", "@yahoo.com", "@hotmail.com", "@icloud.com", "@aol.com", "@zoho.com", "@protonmail.com" };
+                int emailOptionValue = rand.Next(0, emailOptions.Length);
+                string emailOption = emailOptions[emailOptionValue];
 
                 string email = start + middle + end + emailOption;
 
@@ -194,11 +202,13 @@ namespace BaseConsoleApp
                 }
                 else
                 {
+                    //Start the loop again
                     Console.WriteLine("User already exists in db");
                     Console.ReadLine();
                 }
             }
         }
+
         private string GeneratePassword(Random rand)
         {
             string result = "";
@@ -219,7 +229,6 @@ namespace BaseConsoleApp
                     result += number;
                 }
             }
-
             return result;
         }
 
@@ -229,6 +238,7 @@ namespace BaseConsoleApp
             Login = 1,
             DebugLogin = 2
         }
+
         private enum MenuOption
         {
             AddRecipe = 0,

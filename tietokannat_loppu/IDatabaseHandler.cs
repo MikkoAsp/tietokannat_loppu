@@ -15,6 +15,6 @@ namespace BaseConsoleApp
 
         public Task<User> AddUserToDb(string email, string password, string username);
 
-        public Task DeleteFromDb(int recipeId);
+        public Task DeleteFromDb(int recipeId, LocalUser localUser);
     }
 }

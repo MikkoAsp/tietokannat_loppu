@@ -117,6 +117,7 @@ public partial class TietokannatLoppuContext : DbContext
 
             entity.HasOne(d => d.InstructionsNavigation).WithMany(p => p.Recipes)
                 .HasForeignKey(d => d.InstructionsId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("recipe_instructions_id_fkey");
 
             entity.HasOne(d => d.User).WithMany(p => p.Recipes)
