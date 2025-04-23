@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Diagnostics.Metrics;
@@ -42,6 +42,7 @@ namespace BaseConsoleApp
             int deletedRecipeId = detailsHelper.AskIntNumber("Enter the recipe id you wish to delete: ");
            await databaseHandler.DeleteFromDatabase(deletedRecipeId);
 
+            await databaseHandler.DeleteFromDb(deletedRecipeId);
         }
     }
 }

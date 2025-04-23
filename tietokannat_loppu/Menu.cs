@@ -72,9 +72,8 @@ namespace BaseConsoleApp
         }
         private async Task<LocalUser> AskLoginOptions()
         {
-            bool loggingIn = true;
             LocalUser? user;
-            while (loggingIn)
+            while (true)
             {
                 Console.WriteLine("Create a new user or login to existing one with email and password");
                 string[] loginOptions = { "Create new user", "Login to Existing user","Debug: login to default account" };
