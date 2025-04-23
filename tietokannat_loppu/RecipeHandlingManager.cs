@@ -36,14 +36,12 @@ namespace BaseConsoleApp
              */
 
         }
-        public override void DeleteRecipeWithId()
+        public override async Task DeleteRecipeWithId()
         {
             //Recipe id user wishes to delete
             int deletedRecipeId = detailsHelper.AskIntNumber("Enter the recipe id you wish to delete: ");
+           await databaseHandler.DeleteFromDatabase(deletedRecipeId);
 
-            /*
-             Todo: deletion logic here
-             */
         }
     }
 }

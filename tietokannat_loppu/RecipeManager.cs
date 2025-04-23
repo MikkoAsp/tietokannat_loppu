@@ -125,6 +125,6 @@
         public abstract void SearchRecipesByDishes();
         public abstract void UpdateRecipe();
         public abstract void SearchRecipesByDiets();
-        public abstract void DeleteRecipeWithId();
+        public abstract Task DeleteRecipeWithId();
     }
 }

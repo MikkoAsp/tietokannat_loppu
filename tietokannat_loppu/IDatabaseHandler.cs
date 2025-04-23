@@ -14,6 +14,7 @@ namespace BaseConsoleApp
 
         public Task SaveRecipesToDatabaseAsync(Localrecipe localrecipe, LocalUser localUser);
 
-        public Task<User> AddUserToDb(string email, string password, string username);
+        public Task AddUserToDb(LocalUser newUser);
+        public  Task DeleteFromDatabase();
     }
 }

@@ -44,7 +44,7 @@ namespace BaseConsoleApp
                         recipeHandler.UpdateRecipe();
                         break;
                     case MenuOption.DeleteRecipe:
-                        recipeHandler.DeleteRecipeWithId();
+                        await recipeHandler.DeleteRecipeWithId();
                         break;
                     case MenuOption.SearchWithIngredients:
                         recipeHandler.PrintRecipe(recipeHandler.SearchRecipesByIngredients(helper.AskRecipeIngredients()));

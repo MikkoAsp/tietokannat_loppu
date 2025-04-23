@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using tietokannat_loppu.Entities;
@@ -99,9 +100,21 @@ namespace BaseConsoleApp
         }
 
 
-        public void UpdateRecipeInDatabase(List<Localrecipe> newRecipes)
+        public void UpdateRecipeInDatabase(LocalUser localUser)
         {
           
+        }
+
+        public async Task DeleteFromDatabase(int recipeId) 
+        {
+
+                var recipe = await dbContext.Recipes.FirstOrDefaultAsync(p => p.RecipeId == recipeId);
+                if (recipe != null)
+                {
+                    dbContext.Recipes.Remove(recipe);
+                    dbContext.SaveChanges();
+                }
+
         }
     }
 }
