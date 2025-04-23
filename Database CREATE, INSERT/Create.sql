@@ -31,7 +31,7 @@ CREATE TABLE ingredient (
 );
 
 CREATE TABLE recipe_ingredients (
-    recipe_id INTEGER REFERENCES recipe(recipe_id),
+    recipe_id INTEGER REFERENCES recipe(recipe_id) ON DELETE CASCADE,
     ingredient_id INTEGER REFERENCES ingredient(ingredient_id),
     quantity NUMERIC(10, 2) NOT NULL CHECK (quantity > 0),
     unit_type VARCHAR(255),
@@ -39,4 +39,4 @@ CREATE TABLE recipe_ingredients (
 );
 
 ALTER TABLE instructions 
-ADD COLUMN recipe_id INTEGER REFERENCES recipe(recipe_id);
+ADD COLUMN recipe_id INTEGER REFERENCES recipe(recipe_id) ON DELETE CASCADE;
