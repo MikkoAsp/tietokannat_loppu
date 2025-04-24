@@ -1,9 +1,9 @@
-# **Project Report Template**
+# **Loppuraporttie**
 
 ## **Title Page**
 
-- **Project Name**: Recipe database project
-- **Student Name(s)**:
+- **Project Name**: Reseptisovellus
+- **Student Name(s)**: Joona Mäkelä, Mikko Asp ja Onni Valtonen
 - **Course/Module**: Databases 2025
 
 ---
@@ -33,38 +33,80 @@
 
 ### **Schema Overview**
 
-- **High-Level Description**: Give a concise explanation of your schema’s purpose (e.g., to store recipes, ingredients, categories, etc.).
-- **Diagram**: Insert or reference your Entity-Relationship Diagram (ERD) here. You can include it in this section.
+- **High-Level Description**: Aloitimme tehtävän luomalla ER-kaavion, jota käytimme perustana reseptisovelluksen tietokannan luomiselle. ER-kaavion löytää tästä samasta GitHub-repositoriosta. Reseptisovellus on tarkoitettu yksittäisten henkilöiden reseptien tallentamiseen omaan henkilökohtaiseen käyttöön, ei varsinaisesti niiden jakamiseen. Sovellukseen kirjaudutaan omalla tunnuksella, jonka voi luoda käyttöliittymää avattaessa. Reseptit ovat kategorisoitu ruokatyypin sekä ruokalajin perusteella.
+  
+- **Diagram**: ER-Diagrammi löytyy tästä GitHub-repositoriosta.
 
 ### **Entities and Relationships**
 
-- **List of Entities**: Describe each table (e.g., `Recipe`, `Ingredient`), including their main attributes.
-- **Relationship Descriptions**: Explain the relationships (one-to-many, many-to-many, etc.) and how they are represented (junction tables, foreign keys, etc.).
+- **List of Entities**:
+- Recipen primääriavain on RecipeId, Instructionsin on InstructionsId, Recipe_Ingredientsillä on yhdistelmäavain, Ingredientillä IngredientId, Userilla UserId.
+- Entiteettejä tietokannassamme ovat User, Recipe, Instructions, Recipe_Ingredients sekä Ingredient. Diet sekä Dish ovat Enumeraattoreita.
+
+- **Relationship Descriptions**:
+- Recipe.RecipeId M - M Recipe_Ingredients.RecipeId
+- Recipe.RecipeId M - 1 Instructions.RecipeId
+- Recipe.InstructionsId M - 1 InstructionsId
+- Recipe.UserId M - 1 User.UserId
+- Recipe_Ingredients.IngredientId 1 - M Ingredient.IngredientId
+
+- Recipen ja Instructions taulun välillä on kaksi yhteyttä koska halusimme yhdistää instructions taulussa olevat kokkausohjeet yksittäisiin vaiheisiin.
 
 ### **Normalization & Constraints**
 
 - **Normalization Level**: State the level of normalization (e.g., 3NF) you aimed for and why.
-- **Constraints**: Discuss your use of primary keys, foreign keys, `NOT NULL`, `UNIQUE`, etc.
+- Meidän normalisaatio on 3NF tasolla, instructions taulussa on circulaarinen dependenssi recipe taulun kanssa ylläolevasta syystä.
+- **Constraints**:
+- User taulussa oleva UserId toimii Primary Keynä. Halusimme käyttäjän email:in olevan sen yksilöivä tekijä ja että samalla sähköpostilla ei voi tehdä useampaa tiliä, siksi se on UNIQUE. Samassa taulussa username, email sekä password ovat NOT NULL koska niitä vaaditaan kirjautumiseen. Jokaisen käyttäjän nimi generoidaan satunnaisesti algoritmillä olevassa olevasta sanaluettelosta joita yhdistetään satunnaisesti.
+- Recipe taulu sisältää primääriavaimen recipe_id joka on myös UNIQUE. Recipetaulussa on myös enumeraattorit Diet sekä Dish joilla yksilöidään reseptejä.
+- Recipe_Ingredients taulussa luodaan yhdistelmäavain recipe_id:n ja ingredient_id:n kanssa.
+- Ingredient taulu sisältää primääriavaimen ingredient_id jolla yksilöidään eri ainesosia jos niitä halutaan käyttää useammassa reseptissä.
+- Instructions taulussa on circulaarinen yhteys recipe_id:llä jota tarvitsimme sovellusratkaisuun jotta pystyimme yksilöimään reseptien instruction askeleet. Tämä ei välttämättä ollut paras ratkaisu, mutta päädyimme tähän loppujen lopuksi.
 
 ### **Design Choices & Rationale**
 
-- **Reasoning**: Justify **why** you structured the schema the way you did. For instance, “We used a junction table for Recipe-Ingredient because it’s a many-to-many relationship.”
-- **Alternatives Considered**: Note any alternative designs you evaluated and why you chose not to implement them.
-
+- **Reasoning**: 
+- Ulkoistimme käyttäjän omaksi tauluksi, koska halusimme luoda kirjautumiskäyttöliittymän ja yksilöidä jokaisen reseptin henkilökohtaiseksi. Käyttäjiä voi olla vain yksi sovelluksessa yhdellä laitteella.
+- Ingredient taulu luotiin siksi, että pystyimme välttämään duplikaattien luomisen kun useita reseptejä luotiin. Loimme yhdistelmätaulun recipe_ingredients toimimaan recipen ja ingredientin välillä yllämainitusta syystä.
+- Instructions taulu on erillinen recipestä koska halusimme eritellä instructions taulussa sisältävät asiat erikseen. Jokaisella reseptillä täytyy olla valmistusvaiheet, siksi käytämme kahta yhdistävää tekijää recipe taulun kanssa.
+- Käytimme enumeraattoreita diet ja dish taulujen sijaan koska taulut olivat ennalta valittuja ja taulujen sisältö olisi käynyt pieneksi. Enumeraattoreilla pystyimme pitää "taulujen" koon aina samana.
+  
 ---
 
 ## **Step 2: Database Implementation**
 
 ### **Table Creation**
 
-- **SQL Scripts Overview**: Provide or reference your `CREATE TABLE` statements.
-- **Explanation of Key Fields**: For each table, briefly explain the most important columns and their data types.
-- **Constraints**: Show how you implemented the constraints (e.g., `PRIMARY KEY`, `FOREIGN KEY`, etc.) in SQL.
+- **SQL Scripts Overview**:
+- Enumeraattorien käyttö
+     - Estää kirjoitusvirheet
+     - Kategoriat aina samat
+     - Taulut pieniä, ei tarvetta luoda erillisiä tauluja Diet ja Dish Enumeraattoreille
+- Users taulu
+     - Tallentaa käyttäjätiedot
+     - sähköposti on UNIQUE, käyttäjä ei voi luoda kahta tiliä samalla sähköpostilla
+     - Yksilöi reseptit
+- Recipe
+     - Tallentaa reseptien tiedot
+     - Ei voi olla NULL
+     - Primääriavaimena user_id
+- Ingredient
+     - Yksittäiset raaka-aineet
+     - Ei redundanssia dataa
+- Recipe Ingredients
+     - Yhdistää reseptit ja ainekset
+     - Kardinaliteetti M - M
+- Instructions
+     - Vaiheittaiset reseptien valmistusohjeet
+     - Ohje ei voi olla tyhjä, ja jos resepti poistetaan niin ohjeet poistetaan
+ 
+- Lisäsimme Alter Table komennon myöhemmin koska halusimme yhdistää ohjeet reseptiin.
 
-### **Data Insertion**
+### **Data Insertion** // Tästä jatkuu seuraavaksi!
 
 - **Sample Data**: Summarize the sample data you inserted. For example, 5 ingredients, 3 recipes, multiple categories, etc.
-- **INSERT Statements**: Provide or reference your data insertion scripts (`INSERT INTO ...`).
+- Tietokantaan lisätyt syötteet luotiin jotta saisimme kehitettyä sovelluksen. Insert tiedosto löytyy GitHub repositoriosta.
+- Sovelluksella pystyy luomaan omia syötteitä.
 
 ### **Validation & Testing**
 
