@@ -43,7 +43,7 @@ namespace BaseConsoleApp
                         recipeManager.ShowAllRecipes(localUser);
                         break;
                     case MenuOption.UpdateRecipe:
-                        await recipeManager.UpdateRecipe(localUser);
+                        await recipeManager.UpdateRecipeInDb(localUser);
                         break;
                     case MenuOption.DeleteRecipe:
                         await recipeManager.DeleteRecipeWithId(localUser);
