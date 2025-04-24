@@ -65,7 +65,7 @@
 
         public void ShowAllRecipes(LocalUser user)
         {
-            var dbRecipes = dbHandler.LoadFromDatabase(user).Result;
+            var dbRecipes = dbHandler.LoadAllRecipesFromDb(user).Result;
 
             if (dbRecipes == null || dbRecipes.Count == 0)
             {
@@ -113,10 +113,10 @@
                 break;
             }
         }
-        public abstract List<Localrecipe> SearchRecipesByIngredients(List<string> searchedIngredients);
-        public abstract void SearchRecipesByDishes();
+        public abstract void SearchRecipesByIngredients(List<string> searchedIngredients);
+        public abstract void SearchRecipesByDishes(LocalUser user);
         public abstract void UpdateRecipe();
-        public abstract void SearchRecipesByDiets();
+        public abstract void SearchRecipesByDiets(LocalUser user);
         public abstract Task DeleteRecipeWithId(LocalUser localUser);
     }
 }

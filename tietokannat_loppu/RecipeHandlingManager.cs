@@ -14,17 +14,31 @@ namespace BaseConsoleApp
         public RecipeHandlingManager(IDatabaseHandler handler, IAskDetails helper) : base(helper, handler)
         {
         }
-        public override List<Localrecipe> SearchRecipesByIngredients(List<string> searchedIngredients)
+        public override void SearchRecipesByIngredients(List<string> searchedIngredients)
         {
-            return localRecipes;
+
         }
-        public override void SearchRecipesByDishes()
+        public override void SearchRecipesByDishes(LocalUser user)
         {
             Dish? dishOption = (Dish?)detailsHelper.SelectEnumOption<Dish>(0);
+            if(dishOption != null)
+            {;
+                var dbRecipes = dbHandler.LoadFromDatabaseByDish(user, (Dish)dishOption).Result;
+
+                PrintRecipe(dbRecipes);
+            }
+
         }
-        public override void SearchRecipesByDiets()
+        public override void SearchRecipesByDiets(LocalUser user)
         {
             Diet? dietOption = (Diet?)detailsHelper.SelectEnumOption<Diet>(0);
+
+            if(dietOption != null)
+            {
+                var dbRecipes = dbHandler.LoadFromDatabaseByDiet(user, (Diet)dietOption).Result;
+
+                PrintRecipe(dbRecipes);
+            }
         }
         public override void UpdateRecipe()
         {

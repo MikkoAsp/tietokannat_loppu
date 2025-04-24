@@ -59,7 +59,7 @@ public partial class TietokannatLoppuContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=Tietokannat_loppu;Username=postgres;Password=admin", o => o.MapEnum<Dish>("dish").MapEnum<Diet>("diet"));
-
+        optionsBuilder.EnableSensitiveDataLogging();
 
     }
 
@@ -142,12 +142,12 @@ public partial class TietokannatLoppuContext : DbContext
 
             entity.HasOne(d => d.Ingredient).WithMany(p => p.RecipeIngredients)
                 .HasForeignKey(d => d.IngredientId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("recipe_ingredients_ingredient_id_fkey");
 
             entity.HasOne(d => d.Recipe).WithMany(p => p.RecipeIngredients)
                 .HasForeignKey(d => d.RecipeId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("recipe_ingredients_recipe_id_fkey");
         });
 

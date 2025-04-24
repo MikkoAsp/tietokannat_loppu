@@ -20,8 +20,8 @@ namespace BaseConsoleApp
 
         string[] possibleMenuOptions = { "1. Add a new recipe", "2. Show all recipes", "3. Update a recipe", "4. Delete A Recipe With Id", "5. Search For Recipes By Ingredients", "6. Search For Recipes By Dish", "7. Search For Recipes Based On Diet", "8. End Program", "9. Debug: SaveToDb" };
         public Menu()
-        {
-            dbHandler = new DatabaseManager(dbContext);
+        {   
+            dbHandler = new DatabaseManager(dbContext, helper);
             recipeManager = new RecipeHandlingManager(dbHandler, helper);
         }
 
@@ -49,14 +49,13 @@ namespace BaseConsoleApp
                         await recipeManager.DeleteRecipeWithId(localUser);
                         break;
                     case MenuOption.SearchWithIngredients:
-                        //TODO FIX
-                        //recipeManager.PrintRecipe(recipeManager.SearchRecipesByIngredients(helper.AskRecipeIngredients()));
+                        recipeManager.SearchRecipesByIngredients(helper.AskRecipeIngredients());
                         break;
                     case MenuOption.SearchWithDish:
-                        recipeManager.SearchRecipesByDishes();
+                        recipeManager.SearchRecipesByDishes(localUser);
                         break;
                     case MenuOption.SearchWithDiet:
-                        recipeManager.SearchRecipesByDiets();
+                        recipeManager.SearchRecipesByDiets(localUser);
                         break;
                     case MenuOption.EndProgram:
                         Console.WriteLine("Program ended");

@@ -9,9 +9,11 @@ namespace BaseConsoleApp
     public class DatabaseManager : IDatabaseHandler
     {
         TietokannatLoppuContext dbContext;
-        public DatabaseManager(TietokannatLoppuContext contex)
+        IAskDetails helper;
+        public DatabaseManager(TietokannatLoppuContext contex, IAskDetails helper)
         {
             dbContext = contex;
+            this.helper = helper;
         }
         public async Task<User> AddUserToDb(string email, string password, string username)
         {
@@ -29,7 +31,7 @@ namespace BaseConsoleApp
             Console.ReadLine();
             return userToSave;
         }
-        public async Task<List<Recipe>?> LoadFromDatabase(LocalUser user)
+        public async Task<List<Recipe>?> LoadAllRecipesFromDb(LocalUser user)
         {
             Console.WriteLine("Looking for recipes with id: " + user.Id);
 
@@ -108,7 +110,6 @@ namespace BaseConsoleApp
 
         }
 
-
         public void UpdateRecipeInDatabase(LocalUser localUser)
         {
           
@@ -124,7 +125,7 @@ namespace BaseConsoleApp
                 Console.ReadLine();
 
                 dbContext.Recipes.Remove(itemToDelete);
-                dbContext.SaveChanges();
+                await dbContext.SaveChangesAsync();
                 Console.WriteLine("Item deleted successfully");
                 Console.ReadLine();
 
@@ -134,9 +135,32 @@ namespace BaseConsoleApp
                 Console.WriteLine("Couldn't find recipe with your id");
                 Console.ReadLine();
             }
+        }
 
+        public async Task<List<Recipe>?> LoadFromDatabaseByDish(LocalUser user, Dish dish)
+        {
+            var results = await dbContext.Recipes
+                .Include(recipe => recipe.RecipeIngredients)
+                .ThenInclude(recipeIngredients => recipeIngredients.Ingredient)
+                .Include(recipe => recipe.Instructions)
+                .Where(recipe => recipe.UserId == user.Id && recipe.Dish == dish)
+                .ToListAsync();
+            return results;
+        }
+        public async Task<List<Recipe>?> LoadFromDatabaseByDiet(LocalUser user, Diet diet)
+        {
+            var results = await dbContext.Recipes
+            .Include(recipe => recipe.RecipeIngredients)
+            .ThenInclude(recipeIngredients => recipeIngredients.Ingredient)
+            .Include(recipe => recipe.Instructions)
+            .Where(recipe => recipe.UserId == user.Id && recipe.Diet == diet)
+            .ToListAsync();
+            return results;
+        }
 
-
+        public Task<List<Recipe>?> LoadFromDatabaseByIngredients(LocalUser user, List<string> ingredients)
+        {
+            return null;
         }
     }
 }
