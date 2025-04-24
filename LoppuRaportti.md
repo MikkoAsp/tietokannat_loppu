@@ -55,13 +55,13 @@
 ### **Normalization & Constraints**
 
 - **Normalization Level**: State the level of normalization (e.g., 3NF) you aimed for and why.
-- Meidän normalisaatio on 3NF tasolla, instructions taulussa on circulaarinen dependenssi recipe taulun kanssa ylläolevasta syystä.
+- Meidän normalisaatio on 3NF tasolla, instructions taulussa on sirculaarinen dependenssi recipe taulun kanssa ylläolevasta syystä.
 - **Constraints**:
 - User taulussa oleva UserId toimii Primary Keynä. Halusimme käyttäjän email:in olevan sen yksilöivä tekijä ja että samalla sähköpostilla ei voi tehdä useampaa tiliä, siksi se on UNIQUE. Samassa taulussa username, email sekä password ovat NOT NULL koska niitä vaaditaan kirjautumiseen. Jokaisen käyttäjän nimi generoidaan satunnaisesti algoritmillä olevassa olevasta sanaluettelosta joita yhdistetään satunnaisesti.
 - Recipe taulu sisältää primääriavaimen recipe_id joka on myös UNIQUE. Recipetaulussa on myös enumeraattorit Diet sekä Dish joilla yksilöidään reseptejä.
 - Recipe_Ingredients taulussa luodaan yhdistelmäavain recipe_id:n ja ingredient_id:n kanssa.
 - Ingredient taulu sisältää primääriavaimen ingredient_id jolla yksilöidään eri ainesosia jos niitä halutaan käyttää useammassa reseptissä.
-- Instructions taulussa on circulaarinen yhteys recipe_id:llä jota tarvitsimme sovellusratkaisuun jotta pystyimme yksilöimään reseptien instruction askeleet. Tämä ei välttämättä ollut paras ratkaisu, mutta päädyimme tähän loppujen lopuksi.
+- Instructions taulussa on sirculaarinen yhteys recipe_id:llä jota tarvitsimme sovellusratkaisuun jotta pystyimme yksilöimään reseptien instruction askeleet. Tämä ei välttämättä ollut paras ratkaisu, mutta päädyimme tähän loppujen lopuksi.
 
 ### **Design Choices & Rationale**
 
@@ -113,35 +113,35 @@
 - **Basic Queries**: 
 - Select *
 - From recipe;
-- --------------------------
-1		1	"Macaronibox"	"Meat"	"Main"	"2025-04-21 21:08:42.280538+03"
-2		2	"Gnocchi with burnt butter and walnuts"	"Vegetarian"	"Main"	"2025-04-21 21:08:42.280538+03"
-3		3	"Tarmos Chickpea Curry with Spinach and Rice"	"Vegan"	"Main"	"2025-04-21 21:08:42.280538+03"
-4		1	"beruna"	"Vegetarian"	"Side"	"2025-04-21 21:12:40.267707+03"
-5		1	"DebugTest"	"Meat"	"Main"	"2025-04-21 21:13:32.968778+03"
-6		4	"x"	"Keto"	"Main"	"2025-04-21 21:14:28.676861+03"
-7		4	"DebugTest"	"Meat"	"Main"	"2025-04-21 21:14:36.205953+03"
-- ---------------------------
+
+-		1	"Macaronibox"	"Meat"	"Main"	"2025-04-21 21:08:42.280538+03"
+-		2	"Gnocchi with burnt butter and walnuts"	"Vegetarian"	"Main"	"2025-04-21 21:08:42.280538+03"
+-		3	"Tarmos Chickpea Curry with Spinach and Rice"	"Vegan"	"Main"	"2025-04-21 21:08:42.280538+03"
+-		1	"beruna"	"Vegetarian"	"Side"	"2025-04-21 21:12:40.267707+03"
+-		1	"DebugTest"	"Meat"	"Main"	"2025-04-21 21:13:32.968778+03"
+-		4	"x"	"Keto"	"Main"	"2025-04-21 21:14:28.676861+03"
+-		4	"DebugTest"	"Meat"	"Main"	"2025-04-21 21:14:36.205953+03"
+
 SELECT r.recipe_name, i.ingredient_name, ri.quantity, ri.unit_type 
 FROM recipe r
 JOIN recipe_ingredients ri ON r.recipe_id = ri.recipe_id
 JOIN ingredient i ON ri.ingredient_id = i.ingredient_id
 WHERE r.recipe_id = 1;
-- ---------------------------
+
 Hae kaikki reepstit  ^
-- ---------------------------
-"Macaronibox"	"Ground meat"	400.00	"g"
-"Macaronibox"	"Macaroni"	5.50	"dl"
-"Macaronibox"	"Onion"	1.00	"pcs"
-"Macaronibox"	"Salt"	1.50	"tsp"
-"Macaronibox"	"Curry"	1.00	"tsp"
-"Macaronibox"	"White pepper"	0.20	"tsp"
-"Macaronibox"	"Paprika powder"	1.00	"tsp"
-"Macaronibox"	"Egg"	3.00	"pcs"
-"Macaronibox"	"Milk or meat broth"	7.00	"dl"
-- ---------------------------
+
+- "Macaronibox"	"Ground meat"	400.00	"g"
+- "Macaronibox"	"Macaroni"	5.50	"dl"
+- "Macaronibox"	"Onion"	1.00	"pcs"
+- "Macaronibox"	"Salt"	1.50	"tsp"
+- "Macaronibox"	"Curry"	1.00	"tsp"
+- "Macaronibox"	"White pepper"	0.20	"tsp"
+- "Macaronibox"	"Paprika powder"	1.00	"tsp"
+- "Macaronibox"	"Egg"	3.00	"pcs"
+- "Macaronibox"	"Milk or meat broth"	7.00	"dl"
+
 Hae reseptin ainekset ^
-- ---------------------------
+
 -- Yritä lisätä resepti ilman nimeä (NOT NULL)
 INSERT INTO recipe (user_id) VALUES (1);  -- FAIL: "recipe_name" puuttuu
 
@@ -152,13 +152,13 @@ VALUES (1, 1, -1);  -- FAIL: "quantity" > 0
 -- Yritä lisätä sama ainesosa uudestaan (PRIMARY KEY)
 INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity) 
 VALUES (1, 1, 1);  -- FAIL: Avain (1,1) on jo olemassa
-- ---------------------------
+
 ERROR:  Failing row contains (8, null, 1, null, null, null, 2025-04-24 15:28:13.754106+03).null value in column "recipe_name" of relation "recipe" violates not-null constraint 
 
 ERROR:  null value in column "recipe_name" of relation "recipe" violates not-null constraint
 SQL state: 23502
 Detail: Failing row contains (8, null, 1, null, null, null, 2025-04-24 15:28:13.754106+03).
-- ---------------------------
+
 
 ## **Step 3: .NET Core Console Application Enhancement**
 
@@ -193,7 +193,7 @@ Detail: Failing row contains (8, null, 1, null, null, null, 2025-04-24 15:28:13.
 - **Advanced Features**:
 - Kategorianmuutos löytyy update Taskista
 - Haku Dietin ja Dishin perusteella on identtinen
-- -------------------------------------------
+
    var results = await dbContext.Recipes
      .Include(recipe => recipe.RecipeIngredients)
      .ThenInclude(recipeIngredients => recipeIngredients.Ingredient)
@@ -202,9 +202,9 @@ Detail: Failing row contains (8, null, 1, null, null, null, 2025-04-24 15:28:13.
      .ToListAsync();
 
      return  results;
-- ----------------------------------------------
+
 - Haku Ingredient perusteella on täsmällinen haku
-- ----------------------------------------------
+
    var results = await dbContext.Recipes
     .Include(recipe => recipe.RecipeIngredients)
     .ThenInclude(ri => ri.Ingredient)
@@ -214,12 +214,12 @@ Detail: Failing row contains (8, null, 1, null, null, null, 2025-04-24 15:28:13.
     .ToListAsync();
 
    return results;
-- ---------------------------------------------
 
+---
 ### **Advanced Queries & Methods**
 
 - **LINQ Queries**: Yllämainittu ingredient haku
-- --------------------------------------------
+
    var results = await dbContext.Recipes
             .Include(recipe => recipe.RecipeIngredients)
             .ThenInclude(ri => ri.Ingredient)
@@ -229,7 +229,7 @@ Detail: Failing row contains (8, null, 1, null, null, null, 2025-04-24 15:28:13.
             .ToListAsync();
 
    return results;
-- --------------------------------------------
+
 - **Performance Considerations**:
 - Performanssi ei ollut meidän prioriteetti, tehtävän tekeminen loppuun oli etusijalla.
 
