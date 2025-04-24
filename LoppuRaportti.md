@@ -102,7 +102,7 @@
  
 - Lisäsimme Alter Table komennon myöhemmin koska halusimme yhdistää ohjeet reseptiin.
 
-### **Data Insertion** // Tästä jatkuu seuraavaksi!
+### **Data Insertion**
 
 - **Sample Data**: Summarize the sample data you inserted. For example, 5 ingredients, 3 recipes, multiple categories, etc.
 - Tietokantaan lisätyt syötteet luotiin jotta saisimme kehitettyä sovelluksen. Insert tiedosto löytyy GitHub repositoriosta.
@@ -110,46 +110,162 @@
 
 ### **Validation & Testing**
 
-- **Basic Queries**: Document a few test queries you ran using `psql` or another tool (e.g. `pgAdmin`) to confirm your data was inserted correctly.
-- **Results**: Summarize the outcome (e.g., “Query shows 3 recipes in the `Recipe` table. Each has multiple entries in `RecipeIngredient`. No foreign key violations.”)
+- **Basic Queries**: 
+- Select *
+- From recipe;
+- --------------------------
+1		1	"Macaronibox"	"Meat"	"Main"	"2025-04-21 21:08:42.280538+03"
+2		2	"Gnocchi with burnt butter and walnuts"	"Vegetarian"	"Main"	"2025-04-21 21:08:42.280538+03"
+3		3	"Tarmos Chickpea Curry with Spinach and Rice"	"Vegan"	"Main"	"2025-04-21 21:08:42.280538+03"
+4		1	"beruna"	"Vegetarian"	"Side"	"2025-04-21 21:12:40.267707+03"
+5		1	"DebugTest"	"Meat"	"Main"	"2025-04-21 21:13:32.968778+03"
+6		4	"x"	"Keto"	"Main"	"2025-04-21 21:14:28.676861+03"
+7		4	"DebugTest"	"Meat"	"Main"	"2025-04-21 21:14:36.205953+03"
+----------------------------
+SELECT r.recipe_name, i.ingredient_name, ri.quantity, ri.unit_type 
+FROM recipe r
+JOIN recipe_ingredients ri ON r.recipe_id = ri.recipe_id
+JOIN ingredient i ON ri.ingredient_id = i.ingredient_id
+WHERE r.recipe_id = 1;
+----------------------------
+Hae kaikki reepstit  ^
+----------------------------
+"Macaronibox"	"Ground meat"	400.00	"g"
+"Macaronibox"	"Macaroni"	5.50	"dl"
+"Macaronibox"	"Onion"	1.00	"pcs"
+"Macaronibox"	"Salt"	1.50	"tsp"
+"Macaronibox"	"Curry"	1.00	"tsp"
+"Macaronibox"	"White pepper"	0.20	"tsp"
+"Macaronibox"	"Paprika powder"	1.00	"tsp"
+"Macaronibox"	"Egg"	3.00	"pcs"
+"Macaronibox"	"Milk or meat broth"	7.00	"dl"
+----------------------------
+Hae reseptin ainekset ^
+----------------------------
+-- Yritä lisätä resepti ilman nimeä (NOT NULL)
+INSERT INTO recipe (user_id) VALUES (1);  -- FAIL: "recipe_name" puuttuu
 
----
+-- Yritä lisätä negatiivinen määrä ainesosaa (CHECK)
+INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity) 
+VALUES (1, 1, -1);  -- FAIL: "quantity" > 0
+
+-- Yritä lisätä sama ainesosa uudestaan (PRIMARY KEY)
+INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity) 
+VALUES (1, 1, 1);  -- FAIL: Avain (1,1) on jo olemassa
+----------------------------
+ERROR:  Failing row contains (8, null, 1, null, null, null, 2025-04-24 15:28:13.754106+03).null value in column "recipe_name" of relation "recipe" violates not-null constraint 
+
+ERROR:  null value in column "recipe_name" of relation "recipe" violates not-null constraint
+SQL state: 23502
+Detail: Failing row contains (8, null, 1, null, null, null, 2025-04-24 15:28:13.754106+03).
+----------------------------
 
 ## **Step 3: .NET Core Console Application Enhancement**
 
 ### **EF Core Configuration**
 
-- **Connection String**: Describe where and how you manage the database connection string (e.g., `appsettings.json`, environment variables).
-- **DbContext**: Summarize your e.g. `RecipeDbContext` setup, how you map entities.
+- **Connection String**: 
+- Käytimme opetustehtävissä tehtyä tapaa scaffoldata tietokanta projektiin
+- Visual Studio loi entiteetit automaattisesti, muutimme ainoastaan rivit 145 ja 150 .OnDelete(DeleteBehavior.Cascade):ksi alkuperäisestä automatisoidusta scaffoldauksesta.
+- **DbContext**:
+- IDE automatisoi konstekstin meidän puolesta.
 
 ### **Implemented Features**
 
-- **CRUD Operations**: Explain your approach for Create, Read, Update, and Delete methods (e.g., adding new recipes, listing all recipes).
-- **Advanced Features**: List any advanced features such as searching by multiple ingredients or retrieving recipes by category.
+- **CRUD Operations**:
+- Create
+   - Kysytään käyttäjältä tiedot
+   - Haetaan käyttäjä sähköpostilla tietokannasta
+   - Tiedot tallennetaan tauluun
+   - Taulun tiedot lähetetään tietokantaan
+- Read
+     - Etsitään User_Id:llä kaikki reseptit
+     - Etsitään kaikki relevantit tiedot, jotka vastaavat user_id:tä
+     - Listataan reseptit käyttäjälle nähtäväksi
+- Update
+     -
+
+- Delete
+     - Etsitään käyttäjän omista resepteistä reseptiId:llä resepti joka valitaan poistettavaksi
+     - Kysytään haluaako käyttäjä poistaa kyseisen reseptin
+     - Resepti poistetaan tietokannasta
+       
+- **Advanced Features**:
+- Kategorianmuutos löytyy update Taskista
+- Haku Dietin ja Dishin perusteella on identtinen
+--------------------------------------------
+   var results = await dbContext.Recipes
+     .Include(recipe => recipe.RecipeIngredients)
+     .ThenInclude(recipeIngredients => recipeIngredients.Ingredient)
+     .Include(recipe => recipe.Instructions)
+     .Where(recipe => recipe.UserId == user.Id && recipe.Dish / Diet == dish / diet)
+     .ToListAsync();
+
+     return  results;
+-----------------------------------------------
+- Haku Ingredient perusteella on täsmällinen haku
+-----------------------------------------------
+   var results = await dbContext.Recipes
+    .Include(recipe => recipe.RecipeIngredients)
+    .ThenInclude(ri => ri.Ingredient)
+    .Include(recipe => recipe.Instructions)
+    .Where(recipe => recipe.UserId == user.Id &&
+    recipe.RecipeIngredients.Any(ri => ingredients.Contains(ri.Ingredient.IngredientName)))
+    .ToListAsync();
+
+   return results;
+----------------------------------------------
 
 ### **Advanced Queries & Methods**
 
-- **LINQ Queries**: Show or summarize the LINQ queries used for more complex requirements (e.g., “Fetch recipes containing all specified ingredients”).
-- **Performance Considerations**: If relevant, mention any indexes or optimizations you added.
+- **LINQ Queries**: Yllämainittu ingredient haku
+- --------------------------------------------
+   var results = await dbContext.Recipes
+            .Include(recipe => recipe.RecipeIngredients)
+            .ThenInclude(ri => ri.Ingredient)
+            .Include(recipe => recipe.Instructions)
+            .Where(recipe => recipe.UserId == user.Id &&
+            recipe.RecipeIngredients.Any(ri => ingredients.Contains(ri.Ingredient.IngredientName)))
+            .ToListAsync();
+
+   return results;
+---------------------------------------------
+- **Performance Considerations**:
+- Performanssi ei ollut meidän prioriteetti, tehtävän tekeminen loppuun oli etusijalla.
 
 ---
 
 ## **Challenges & Lessons Learned**
 
-- **Obstacles Faced**: Mention any difficulties you encountered (e.g., configuring EF Core, handling many-to-many relationships).
-- **Key Takeaways**: Summarize the primary lessons you learned about database design, SQL, and .NET Core development.
+- **Obstacles Faced**:
+- Tehtävä toimi hyvänä kokonaisuutena databasen yhdistämisessä applikaatioon. Ryhmätyötä tehdessä oppi myös hyödyntämään GitHubia projektin jakamiseen. Haastavaa oli organisoida tehtävä, niin että työnjako olisi tasainen. Tässä ryhmätyössä se ei tapahtunut. Projektimanagerin käyttö olisi voinut olla hyvä ratkaisu tähän ongelmaan.
+- Aikaisempiin projekteihin ei tullut käytettyä abstraktiota ollenkaan, mutta tässä tehtävässä sovelluksen tekemisessä harjaantui kyseisen suunnittelumallin käytössä.
+- Tietokannan suunnittelussa isona plussana oli Enumeraattoireiden käyttö pienille tauluille mikä teki sovelluksen kehittämisestä huomattavasti helpompaa
+- **Key Takeaways**:
+- Käytä projektimanageria tiimitöissä
+- Käytä enumeraattoreita pienien taulujen sijaan
+- Käytä aikaa tietokannan suunnitteluun, koska hyvin suunniteltu tietokanta helpottaa sovelluksen koodausta
 
 ---
 
 ## **Conclusion**
 
-- **Project Summary**: Recap the final state of the project, including major accomplishments (e.g., fully functioning console app integrated with your Postgres database).
-- **Future Enhancements**: Suggest any next steps or improvements you would make if you had more time (e.g., add user authentication, implement rating systems, or expand the domain).
+- **Project Summary**: 
+- Projektista tuli kompleksimpi mitä alkujaan oli ajateltu, mutta kaikki tehtävässä vaaditut kriteerit täytettiin
+- Tietokannan integrointi projektiin onnistui nopeasti
+- Sovellusta testattaessa ohjelmisto ei kaatunut
+- **Future Enhancements**: 
+- Reseptien jakaminen muille käyttäjille
+- Reseptien arvostelu
+- Graafisen käyttöliittymän luominen
 
 ---
 
 ### **Instructions for Use**
 
-1. **Fill Out Each Section**: Provide clear, concise, and **original** explanations.
-2. **Include Screenshots or Snippets**: If it helps clarify a point (e.g., menu output from the console app, partial code snippets).
-3. **Maintain Professional Formatting**: Use consistent headers, bullet points, and references.
+1. Lataa projekti GitHubista Visual Studioon
+2. Pullaa uusin päivitys
+3. Vaihda TietokannatLoppuContext riviltä 61 tietokantasi nimi sekä salasana
+4. Luo tietokanta tämän GitHub repositorion kyselyillä (Database CREATE, INSERT kansio)
+5. Käynnistä sovellus, voit käyttää DEBUG vaihtoehtoa joka kirjautuu debuggaus käyttäjätilillä sovellukseen
+6. Seuraa ohjelman ohjeita
