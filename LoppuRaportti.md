@@ -114,13 +114,10 @@
 - Select *
 - From recipe;
 
--		1	"Macaronibox"	"Meat"	"Main"	"2025-04-21 21:08:42.280538+03"
--		2	"Gnocchi with burnt butter and walnuts"	"Vegetarian"	"Main"	"2025-04-21 21:08:42.280538+03"
--		3	"Tarmos Chickpea Curry with Spinach and Rice"	"Vegan"	"Main"	"2025-04-21 21:08:42.280538+03"
--		1	"beruna"	"Vegetarian"	"Side"	"2025-04-21 21:12:40.267707+03"
--		1	"DebugTest"	"Meat"	"Main"	"2025-04-21 21:13:32.968778+03"
--		4	"x"	"Keto"	"Main"	"2025-04-21 21:14:28.676861+03"
--		4	"DebugTest"	"Meat"	"Main"	"2025-04-21 21:14:36.205953+03"
+-	"Macaronibox"	"Meat"	"Main"	"2025-04-21 21:08:42.280538+03"
+-	"Gnocchi with burnt butter and walnuts"	"Vegetarian"	"Main"	"2025-04-21 21:08:42.280538+03"
+-	"Tarmos Chickpea Curry with Spinach and Rice"	"Vegan"	"Main"	"2025-04-21 21:08:42.280538+03"
+-	"beruna"	"Vegetarian"	"Side"	"2025-04-21 21:12:40.267707+03"
 
 SELECT r.recipe_name, i.ingredient_name, ri.quantity, ri.unit_type 
 FROM recipe r
@@ -128,7 +125,7 @@ JOIN recipe_ingredients ri ON r.recipe_id = ri.recipe_id
 JOIN ingredient i ON ri.ingredient_id = i.ingredient_id
 WHERE r.recipe_id = 1;
 
-Hae kaikki reepstit  ^
+Hae kaikki reseptit 
 
 - "Macaronibox"	"Ground meat"	400.00	"g"
 - "Macaronibox"	"Macaroni"	5.50	"dl"
