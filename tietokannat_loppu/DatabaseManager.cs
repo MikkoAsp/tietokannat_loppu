@@ -34,7 +34,7 @@ namespace BaseConsoleApp
         }
         public async Task<List<Recipe>?> LoadAllRecipesFromDb(LocalUser user)
         {
-            Console.WriteLine("Looking for recipes with id: " + user.Id);
+            Console.WriteLine("\nLooking for recipes with id: " + user.Id);
 
             var listOfRecipes = await dbContext.Recipes
                 .Include(recipe => recipe.RecipeIngredients)
@@ -109,6 +109,57 @@ namespace BaseConsoleApp
                 Console.WriteLine("Could find your user!");
             }
         }
+        private Recipe? ChangeName(Recipe? recipeToUpdate)
+        {
+            Console.WriteLine("\nOld recipe name: " + recipeToUpdate.RecipeName);
+            string answer = helper.AskString("Change name? (y/n): ").ToLower();
+
+            if (answer == "y")
+            {
+                updatedData = true;
+                string newRecipeName = helper.AskString("\nEnter new recipe name: ");
+                recipeToUpdate.RecipeName = newRecipeName;
+            }
+
+            return recipeToUpdate;
+        }
+        private Recipe? ChangeDiet(Recipe? recipeToUpdate)
+        {
+            Console.WriteLine("\nOld recipe Diet: " + recipeToUpdate.Diet);
+
+            string answer = helper.AskString("Change diet? (y/n): ").ToLower();
+
+            if (answer == "y")
+            {
+                Diet? newDiet = (Diet?)helper.SelectEnumOption<Diet>(0);
+                if (newDiet == null)
+                {
+                    Console.WriteLine("0 Entered -> Returning back to menu.");
+                    return recipeToUpdate;
+                }
+                updatedData = true;
+                recipeToUpdate.Diet = (Diet)newDiet;
+            }
+            return recipeToUpdate;
+        }
+        private Recipe? ChangeDish(Recipe? recipeToUpdate)
+        {
+            Console.WriteLine("\nOld recipe dish: " + recipeToUpdate.Dish);
+            string answer = helper.AskString("Change dish? (y/n): ").ToLower();
+
+            if (answer == "y")
+            {
+                Dish? newDish = (Dish?)helper.SelectEnumOption<Dish>(0);
+                if (newDish == null)
+                {
+                    Console.WriteLine("Invalid dish option. Please try again.");
+                    return recipeToUpdate;
+                }
+                updatedData = true;
+                recipeToUpdate.Dish = (Dish)newDish;
+            }
+            return recipeToUpdate;
+        }
         private Recipe? ChangeInstructions(Recipe? recipeToUpdate)
         {
             while (true)
@@ -156,14 +207,14 @@ namespace BaseConsoleApp
         {
             while (true)
             {
-                Console.WriteLine("Old ingredients in recipe");
+                Console.WriteLine("\nOld ingredients in " + recipeToUpdate.RecipeName);
 
                 foreach (var item in recipeToUpdate.RecipeIngredients)
                 {
                     Console.WriteLine(item.Ingredient.IngredientId + ". " + item.Ingredient.IngredientName);
                 }
 
-                string input = helper.AskString("Edit ingredients? (y/n): ").ToLower();
+                string input = helper.AskString("\nEdit ingredients? (y/n): ").ToLower();
 
                 if(input != "y")
                 {
@@ -174,11 +225,11 @@ namespace BaseConsoleApp
 
                 if (ingredientToEdit == null)
                 {
-                    Console.WriteLine("Couldn't find ingredient with your input");
+                    Console.WriteLine("Couldn't find ingredient with your id");
                     continue;
                 }
 
-                string action = helper.AskString("What do you wish to do with the ingredient? Change = c or Delete = d? Cancel = q").ToLower();
+                string action = helper.AskString("What do you wish to do with the ingredient?\n(Change = c or Delete = d? Cancel = q): ").ToLower();
 
                 if(action == "c")
                 {
@@ -207,49 +258,11 @@ namespace BaseConsoleApp
 
             if (recipeToUpdate != null)
             {
+                recipeToUpdate = ChangeName(recipeToUpdate);
+                recipeToUpdate = ChangeDiet(recipeToUpdate);
+                recipeToUpdate = ChangeDish(recipeToUpdate);
                 recipeToUpdate = ChangeIngredients(recipeToUpdate);
                 recipeToUpdate = ChangeInstructions(recipeToUpdate);
-
-                Console.WriteLine("\nOld recipe name: " + recipeToUpdate.RecipeName);
-                string answer = helper.AskString("Change name? (y/n): ").ToLower();
-
-                if (answer == "y")
-                {
-                    updatedData = true;
-                    string newRecipeName = helper.AskString("\nEnter new recipe name: ");
-                    recipeToUpdate.RecipeName = newRecipeName;
-                }
-
-                Console.WriteLine("\nOld recipe Diet: " + recipeToUpdate.Diet);
-
-                answer = helper.AskString("Change diet? (y/n): ").ToLower();
-
-                if(answer == "y")
-                {
-                    Diet? newDiet = (Diet?)helper.SelectEnumOption<Diet>(0);
-                    if (newDiet == null)
-                    {
-                        Console.WriteLine("0 Entered -> Returning back to menu.");
-                        return;
-                    }
-                    updatedData = true;
-                    recipeToUpdate.Diet = (Diet)newDiet;
-                }
-                
-                Console.WriteLine("\nOld recipe dish: " + recipeToUpdate.Dish);
-                answer = helper.AskString("Change dish? (y/n): ").ToLower();
-
-                if(answer == "y")
-                {
-                    Dish? newDish = (Dish?)helper.SelectEnumOption<Dish>(0);
-                    if (newDish == null)
-                    {
-                        Console.WriteLine("Invalid dish option. Please try again.");
-                        return;
-                    }
-                    updatedData = true;
-                    recipeToUpdate.Dish = (Dish)newDish;
-                }
 
                 if (updatedData)
                 {

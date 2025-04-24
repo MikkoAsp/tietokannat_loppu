@@ -67,7 +67,7 @@
 
             if (dbRecipes == null || dbRecipes.Count == 0)
             {
-                Console.WriteLine("No recipes added to database");
+                Console.WriteLine("\nNo recipes added to database");
                 return;
             }
             Console.WriteLine("------------------------------------------------------------");

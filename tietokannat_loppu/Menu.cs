@@ -157,6 +157,7 @@ namespace BaseConsoleApp
             if(user != null)
             {
                 Console.WriteLine("\nLogin to " + user.Username + " is successful");
+                Console.WriteLine("Press enter to continue...");
                 Console.ReadLine();
                 //Creating a new localuser and assigning the required values to its constructor
                 return new LocalUser(user.UserId,user.Username, user.Email, user.Password);
