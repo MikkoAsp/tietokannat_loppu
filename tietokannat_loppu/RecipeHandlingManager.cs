@@ -40,8 +40,11 @@ namespace BaseConsoleApp
                 PrintRecipe(dbRecipes);
             }
         }
-        public override void UpdateRecipe()
+        public override async Task UpdateRecipeInDb(LocalUser localUser)
         {
+
+            int updatedRecipeId = detailsHelper.AskIntNumber("Enter the recipe id you wish to update: ");
+            await dbHandler.UpdateRecipeInDb(updatedRecipeId, localUser);
             /*Todo:
              * -Ask user some info about the recipe so we know what recipe to delete
              * -Then delete the recipe

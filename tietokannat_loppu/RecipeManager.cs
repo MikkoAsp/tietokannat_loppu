@@ -115,7 +115,7 @@
         }
         public abstract void SearchRecipesByIngredients(List<string> searchedIngredients);
         public abstract void SearchRecipesByDishes(LocalUser user);
-        public abstract void UpdateRecipe();
+        public abstract Task UpdateRecipe(LocalUser localUser);
         public abstract void SearchRecipesByDiets(LocalUser user);
         public abstract Task DeleteRecipeWithId(LocalUser localUser);
     }
