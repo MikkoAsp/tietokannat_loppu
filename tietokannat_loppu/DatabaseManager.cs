@@ -110,9 +110,44 @@ namespace BaseConsoleApp
 
         }
 
-        public void UpdateRecipeInDatabase(LocalUser localUser)
+        public async Task UpdateRecipeInDb(int recipeId, LocalUser localUser)
         {
-          
+          var recipeToUpdate = dbContext.Recipes
+                .Where(x => x.UserId == localUser.Id)
+                .FirstOrDefault(p => p.RecipeId == recipeId);
+            if (recipeToUpdate != null)
+            {
+                Console.WriteLine("Updating recipe: " + recipeToUpdate.RecipeName);
+                Console.ReadLine();
+
+                string newRecipeName = helper.AskString("Enter new recipe name: ");
+                Diet? newDiet = (Diet?)helper.SelectEnumOption<Diet>(0);
+                if (newDiet == null) 
+                {
+                    Console.WriteLine("Invalid diet option. Please try again.");
+                    return;
+                }
+                Dish? newDish = (Dish?)helper.SelectEnumOption<Dish>(0);
+                if (newDish == null)
+                {
+                    Console.WriteLine("Invalid dish option. Please try again.");
+                    return;
+                }
+
+                recipeToUpdate.RecipeName = newRecipeName;
+                recipeToUpdate.Diet = (Diet)newDiet;
+                recipeToUpdate.Dish = (Dish)newDish;
+
+
+                dbContext.Recipes.Update(recipeToUpdate);
+                await dbContext.SaveChangesAsync();
+                Console.WriteLine("Item updated successfully");
+            }
+            else
+            {
+                Console.WriteLine("Couldn't find recipe with your id");
+                Console.ReadLine();
+            }
         }
 
         public async Task DeleteFromDb(int recipeId, LocalUser localUser)

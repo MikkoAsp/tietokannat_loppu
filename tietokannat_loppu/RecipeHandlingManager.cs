@@ -44,14 +44,12 @@ namespace BaseConsoleApp
                 PrintRecipe(dbRecipes);
             }
         }
-        public override void UpdateRecipe()
+        public override async Task UpdateRecipeInDb(LocalUser localUser)
         {
-            /*Todo:
-             * -Ask user some info about the recipe so we know what recipe to delete
-             * -Then delete the recipe
-             * -Then Create a new recipe
-             * Then Save that recipe to the db
-             */
+
+            int idRecipeToUpdate = detailsHelper.AskIntNumber("Enter the recipe id you wish to update: ");
+            await dbHandler.UpdateRecipeInDb(idRecipeToUpdate, localUser);
+
 
         }
         public override async Task DeleteRecipeWithId(LocalUser localUser)
