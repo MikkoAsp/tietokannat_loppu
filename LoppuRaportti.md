@@ -1,6 +1,6 @@
-# **Loppuraporttie**
+# **Loppuraportti**
 
-## **Title Page**
+## **Reseptisovellus**
 
 - **Project Name**: Reseptisovellus
 - **Student Name(s)**: Joona Mäkelä, Mikko Asp ja Onni Valtonen
@@ -49,13 +49,13 @@
 - Recipe.InstructionsId M - 1 InstructionsId
 - Recipe.UserId M - 1 User.UserId
 - Recipe_Ingredients.IngredientId 1 - M Ingredient.IngredientId
-
 - Recipen ja Instructions taulun välillä on kaksi yhteyttä koska halusimme yhdistää instructions taulussa olevat kokkausohjeet yksittäisiin vaiheisiin.
 
 ### **Normalization & Constraints**
 
-- **Normalization Level**: State the level of normalization (e.g., 3NF) you aimed for and why.
+- **Normalization Level**:
 - Meidän normalisaatio on 3NF tasolla, instructions taulussa on sirculaarinen dependenssi recipe taulun kanssa ylläolevasta syystä.
+  
 - **Constraints**:
 - User taulussa oleva UserId toimii Primary Keynä. Halusimme käyttäjän email:in olevan sen yksilöivä tekijä ja että samalla sähköpostilla ei voi tehdä useampaa tiliä, siksi se on UNIQUE. Samassa taulussa username, email sekä password ovat NOT NULL koska niitä vaaditaan kirjautumiseen. Jokaisen käyttäjän nimi generoidaan satunnaisesti algoritmillä olevassa olevasta sanaluettelosta joita yhdistetään satunnaisesti.
 - Recipe taulu sisältää primääriavaimen recipe_id joka on myös UNIQUE. Recipetaulussa on myös enumeraattorit Diet sekä Dish joilla yksilöidään reseptejä.
@@ -63,9 +63,9 @@
 - Ingredient taulu sisältää primääriavaimen ingredient_id jolla yksilöidään eri ainesosia jos niitä halutaan käyttää useammassa reseptissä.
 - Instructions taulussa on sirculaarinen yhteys recipe_id:llä jota tarvitsimme sovellusratkaisuun jotta pystyimme yksilöimään reseptien instruction askeleet. Tämä ei välttämättä ollut paras ratkaisu, mutta päädyimme tähän loppujen lopuksi.
 
-### **Design Choices & Rationale**
+### **Design Choices & Rationale**:
 
-- **Reasoning**: 
+- **Reasoning** 
 - Ulkoistimme käyttäjän omaksi tauluksi, koska halusimme luoda kirjautumiskäyttöliittymän ja yksilöidä jokaisen reseptin henkilökohtaiseksi. Käyttäjiä voi olla vain yksi sovelluksessa yhdellä laitteella.
 - Ingredient taulu luotiin siksi, että pystyimme välttämään duplikaattien luomisen kun useita reseptejä luotiin. Loimme yhdistelmätaulun recipe_ingredients toimimaan recipen ja ingredientin välillä yllämainitusta syystä.
 - Instructions taulu on erillinen recipestä koska halusimme eritellä instructions taulussa sisältävät asiat erikseen. Jokaisella reseptillä täytyy olla valmistusvaiheet, siksi käytämme kahta yhdistävää tekijää recipe taulun kanssa.
@@ -99,33 +99,30 @@
 - Instructions
      - Vaiheittaiset reseptien valmistusohjeet
      - Ohje ei voi olla tyhjä, ja jos resepti poistetaan niin ohjeet poistetaan
- 
 - Lisäsimme Alter Table komennon myöhemmin koska halusimme yhdistää ohjeet reseptiin.
 
 ### **Data Insertion**
 
-- **Sample Data**: Summarize the sample data you inserted. For example, 5 ingredients, 3 recipes, multiple categories, etc.
+- **Sample Data**:
 - Tietokantaan lisätyt syötteet luotiin jotta saisimme kehitettyä sovelluksen. Insert tiedosto löytyy GitHub repositoriosta.
 - Sovelluksella pystyy luomaan omia syötteitä.
 
 ### **Validation & Testing**
 
 - **Basic Queries**: 
-- Select *
-- From recipe;
+- Select * From recipe;
 
 -	"Macaronibox"	"Meat"	"Main"	"2025-04-21 21:08:42.280538+03"
 -	"Gnocchi with burnt butter and walnuts"	"Vegetarian"	"Main"	"2025-04-21 21:08:42.280538+03"
 -	"Tarmos Chickpea Curry with Spinach and Rice"	"Vegan"	"Main"	"2025-04-21 21:08:42.280538+03"
--	"beruna"	"Vegetarian"	"Side"	"2025-04-21 21:12:40.267707+03"
 
-SELECT r.recipe_name, i.ingredient_name, ri.quantity, ri.unit_type 
-FROM recipe r
-JOIN recipe_ingredients ri ON r.recipe_id = ri.recipe_id
-JOIN ingredient i ON ri.ingredient_id = i.ingredient_id
-WHERE r.recipe_id = 1;
+- Ylläolevalla kysellä haetaan kaikki reseptit
 
-Hae kaikki reseptit 
+- SELECT r.recipe_name, i.ingredient_name, ri.quantity, ri.unit_type 
+- FROM recipe r
+- JOIN recipe_ingredients ri ON r.recipe_id = ri.recipe_id
+- JOIN ingredient i ON ri.ingredient_id = i.ingredient_id
+- WHERE r.recipe_id = 1;
 
 - "Macaronibox"	"Ground meat"	400.00	"g"
 - "Macaronibox"	"Macaroni"	5.50	"dl"
@@ -137,25 +134,7 @@ Hae kaikki reseptit
 - "Macaronibox"	"Egg"	3.00	"pcs"
 - "Macaronibox"	"Milk or meat broth"	7.00	"dl"
 
-Hae reseptin ainekset ^
-
--- Yritä lisätä resepti ilman nimeä (NOT NULL)
-INSERT INTO recipe (user_id) VALUES (1);  -- FAIL: "recipe_name" puuttuu
-
--- Yritä lisätä negatiivinen määrä ainesosaa (CHECK)
-INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity) 
-VALUES (1, 1, -1);  -- FAIL: "quantity" > 0
-
--- Yritä lisätä sama ainesosa uudestaan (PRIMARY KEY)
-INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity) 
-VALUES (1, 1, 1);  -- FAIL: Avain (1,1) on jo olemassa
-
-ERROR:  Failing row contains (8, null, 1, null, null, null, 2025-04-24 15:28:13.754106+03).null value in column "recipe_name" of relation "recipe" violates not-null constraint 
-
-ERROR:  null value in column "recipe_name" of relation "recipe" violates not-null constraint
-SQL state: 23502
-Detail: Failing row contains (8, null, 1, null, null, null, 2025-04-24 15:28:13.754106+03).
-
+- Ylläolevalla kyselyllä haetaan kaikki reseptin ainekset
 
 ## **Step 3: .NET Core Console Application Enhancement**
 
@@ -165,7 +144,7 @@ Detail: Failing row contains (8, null, 1, null, null, null, 2025-04-24 15:28:13.
 - Käytimme opetustehtävissä tehtyä tapaa scaffoldata tietokanta projektiin
 - Visual Studio loi entiteetit automaattisesti, muutimme ainoastaan rivit 145 ja 150 .OnDelete(DeleteBehavior.Cascade):ksi alkuperäisestä automatisoidusta scaffoldauksesta.
 - **DbContext**:
-- IDE automatisoi konstekstin meidän puolesta.
+- IDE automatisoi kontekstin meidän puolesta.
 
 ### **Implemented Features**
 
