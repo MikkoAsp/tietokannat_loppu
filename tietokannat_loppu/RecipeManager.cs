@@ -113,10 +113,10 @@
                 break;
             }
         }
-        public abstract void SearchRecipesByIngredients(List<string> searchedIngredients);
-        public abstract void SearchRecipesByDishes(LocalUser user);
+        public abstract void SearchRecipesByIngredients(LocalUser localUser);
+        public abstract void SearchRecipesByDishes(LocalUser localUser);
         public abstract void UpdateRecipe();
-        public abstract void SearchRecipesByDiets(LocalUser user);
+        public abstract void SearchRecipesByDiets(LocalUser localUser);
         public abstract Task DeleteRecipeWithId(LocalUser localUser);
     }
 }

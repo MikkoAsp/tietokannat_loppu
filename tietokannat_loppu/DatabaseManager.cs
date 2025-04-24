@@ -145,6 +145,7 @@ namespace BaseConsoleApp
                 .Include(recipe => recipe.Instructions)
                 .Where(recipe => recipe.UserId == user.Id && recipe.Dish == dish)
                 .ToListAsync();
+
             return results;
         }
         public async Task<List<Recipe>?> LoadFromDatabaseByDiet(LocalUser user, Diet diet)
@@ -155,12 +156,21 @@ namespace BaseConsoleApp
             .Include(recipe => recipe.Instructions)
             .Where(recipe => recipe.UserId == user.Id && recipe.Diet == diet)
             .ToListAsync();
+
             return results;
         }
 
-        public Task<List<Recipe>?> LoadFromDatabaseByIngredients(LocalUser user, List<string> ingredients)
+        public async Task<List<Recipe>?> LoadFromDatabaseByIngredients(LocalUser user, List<string> ingredients)
         {
-            return null;
+            var results = await dbContext.Recipes
+            .Include(recipe => recipe.RecipeIngredients)
+            .ThenInclude(ri => ri.Ingredient)
+            .Include(recipe => recipe.Instructions)
+            .Where(recipe => recipe.UserId == user.Id &&
+            recipe.RecipeIngredients.Any(ri => ingredients.Contains(ri.Ingredient.IngredientName)))
+            .ToListAsync();
+
+            return results;
         }
     }
 }

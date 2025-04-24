@@ -49,7 +49,7 @@ namespace BaseConsoleApp
                         await recipeManager.DeleteRecipeWithId(localUser);
                         break;
                     case MenuOption.SearchWithIngredients:
-                        recipeManager.SearchRecipesByIngredients(helper.AskRecipeIngredients());
+                        recipeManager.SearchRecipesByIngredients(localUser);
                         break;
                     case MenuOption.SearchWithDish:
                         recipeManager.SearchRecipesByDishes(localUser);
