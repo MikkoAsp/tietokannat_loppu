@@ -53,18 +53,18 @@
 ### **Normalization & Constraints**
 
 - **Normalization Level**:
-- Meidän normalisaatio on 3NF tasolla, instructions taulussa on sirculaarinen dependenssi recipe taulun kanssa ylläolevasta syystä.
+- Meidän normalisaatio on 3NF tasolla, instructions taulussa on sirkulaarinen dependenssi recipe taulun kanssa ylläolevasta syystä.
   
 - **Constraints**:
 - User taulussa oleva UserId toimii Primary Keynä. Halusimme käyttäjän email:in olevan sen yksilöivä tekijä ja että samalla sähköpostilla ei voi tehdä useampaa tiliä, siksi se on UNIQUE. Samassa taulussa username, email sekä password ovat NOT NULL koska niitä vaaditaan kirjautumiseen. Jokaisen käyttäjän nimi generoidaan satunnaisesti algoritmillä olevassa olevasta sanaluettelosta joita yhdistetään satunnaisesti.
 - Recipe taulu sisältää primääriavaimen recipe_id joka on myös UNIQUE. Recipetaulussa on myös enumeraattorit Diet sekä Dish joilla yksilöidään reseptejä.
 - Recipe_Ingredients taulussa luodaan yhdistelmäavain recipe_id:n ja ingredient_id:n kanssa.
 - Ingredient taulu sisältää primääriavaimen ingredient_id jolla yksilöidään eri ainesosia jos niitä halutaan käyttää useammassa reseptissä.
-- Instructions taulussa on sirculaarinen yhteys recipe_id:llä jota tarvitsimme sovellusratkaisuun jotta pystyimme yksilöimään reseptien instruction askeleet. Tämä ei välttämättä ollut paras ratkaisu, mutta päädyimme tähän loppujen lopuksi.
+- Instructions taulussa on sirkulaarinen yhteys recipe_id:llä jota tarvitsimme sovellusratkaisuun jotta pystyimme yksilöimään reseptien instruction askeleet. Tämä ei välttämättä ollut paras ratkaisu, mutta päädyimme tähän loppujen lopuksi.
 
 ### **Design Choices & Rationale**:
 
-- **Reasoning** 
+- **Reasoning:** 
 - Ulkoistimme käyttäjän omaksi tauluksi, koska halusimme luoda kirjautumiskäyttöliittymän ja yksilöidä jokaisen reseptin henkilökohtaiseksi. Käyttäjiä voi olla vain yksi sovelluksessa yhdellä laitteella.
 - Ingredient taulu luotiin siksi, että pystyimme välttämään duplikaattien luomisen kun useita reseptejä luotiin. Loimme yhdistelmätaulun recipe_ingredients toimimaan recipen ja ingredientin välillä yllämainitusta syystä.
 - Instructions taulu on erillinen recipestä koska halusimme eritellä instructions taulussa sisältävät asiat erikseen. Jokaisella reseptillä täytyy olla valmistusvaiheet, siksi käytämme kahta yhdistävää tekijää recipe taulun kanssa.
@@ -83,7 +83,7 @@
      - Taulut pieniä, ei tarvetta luoda erillisiä tauluja Diet ja Dish Enumeraattoreille
 - Users taulu
      - Tallentaa käyttäjätiedot
-     - sähköposti on UNIQUE, käyttäjä ei voi luoda kahta tiliä samalla sähköpostilla
+     - Sähköposti on UNIQUE, käyttäjä ei voi luoda kahta tiliä samalla sähköpostilla
      - Yksilöi reseptit
 - Recipe
      - Tallentaa reseptien tiedot
