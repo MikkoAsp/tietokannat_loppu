@@ -113,6 +113,7 @@
                 break;
             }
         }
+      
         public abstract void SearchRecipesByIngredients(List<string> searchedIngredients);
         public abstract void SearchRecipesByDishes(LocalUser user);
         public abstract Task UpdateRecipeInDb(LocalUser localUser);

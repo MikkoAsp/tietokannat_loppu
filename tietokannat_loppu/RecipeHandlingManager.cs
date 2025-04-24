@@ -14,9 +14,13 @@ namespace BaseConsoleApp
         public RecipeHandlingManager(IDatabaseHandler handler, IAskDetails helper) : base(helper, handler)
         {
         }
-        public override void SearchRecipesByIngredients(List<string> searchedIngredients)
+        public override void SearchRecipesByIngredients(LocalUser user)
         {
+            List<string> searchedIngredients = detailsHelper.AskRecipeIngredients();
 
+            var dbRecipes = dbHandler.LoadFromDatabaseByIngredients(user, searchedIngredients).Result;
+
+            PrintRecipe(dbRecipes);
         }
         public override void SearchRecipesByDishes(LocalUser user)
         {
