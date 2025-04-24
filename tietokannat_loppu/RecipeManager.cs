@@ -53,11 +53,9 @@
 
                 }
                 Console.WriteLine("\nIntructions: ");
-                int index = 0;
                 foreach (var instruction in recipe.Instructions)
                 {
-                    index++;
-                    Console.WriteLine($"{index}. {instruction.CookingInstructions}");
+                    Console.WriteLine($"{instruction.Step}. {instruction.CookingInstructions}");
                 }
                 Console.WriteLine();
             }
@@ -114,7 +112,7 @@
             }
         }
       
-        public abstract void SearchRecipesByIngredients(List<string> searchedIngredients);
+        public abstract void SearchRecipesByIngredients(LocalUser user);
         public abstract void SearchRecipesByDishes(LocalUser user);
         public abstract Task UpdateRecipeInDb(LocalUser localUser);
         public abstract void SearchRecipesByDiets(LocalUser user);

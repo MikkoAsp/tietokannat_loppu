@@ -107,46 +107,102 @@ namespace BaseConsoleApp
             {
                 Console.WriteLine("Could find your user!");
             }
-
         }
 
         public async Task UpdateRecipeInDb(int recipeId, LocalUser localUser)
         {
-          var recipeToUpdate = dbContext.Recipes
+          var recipeToUpdate = await dbContext.Recipes
+                .Include(recipe => recipe.Instructions)
                 .Where(x => x.UserId == localUser.Id)
-                .FirstOrDefault(p => p.RecipeId == recipeId);
+                .FirstOrDefaultAsync(recipe => recipe.RecipeId == recipeId);
+
             if (recipeToUpdate != null)
             {
-                Console.WriteLine("Updating recipe: " + recipeToUpdate.RecipeName);
-                Console.ReadLine();
+                bool changedData = false;
 
-                string newRecipeName = helper.AskString("Enter new recipe name: ");
-                Diet? newDiet = (Diet?)helper.SelectEnumOption<Diet>(0);
-                if (newDiet == null) 
+                Console.WriteLine("\nOld instructions: ");
+
+                foreach (var item in recipeToUpdate.Instructions)
                 {
-                    Console.WriteLine("Invalid diet option. Please try again.");
-                    return;
+                    Console.WriteLine(item.Step + ". " + item.CookingInstructions);
                 }
-                Dish? newDish = (Dish?)helper.SelectEnumOption<Dish>(0);
-                if (newDish == null)
+                while (true)
                 {
-                    Console.WriteLine("Invalid dish option. Please try again.");
-                    return;
+                    int stepNum = helper.AskIntNumberWithMaxMinRange("Enter instruction number to edit or enter 0 to not edit: ", 0, recipeToUpdate.Instructions.Count);
+
+                    if (stepNum == 0)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        foreach(var item in recipeToUpdate.Instructions)
+                        {
+                            if(item.Step == stepNum)
+                            {
+                                string newText = helper.AskString("New instructions for step " + item.Step + ": ");
+                                item.CookingInstructions = newText;
+                                Console.WriteLine("Item edited edit another?");
+                            }
+                        }
+                    }
                 }
 
-                recipeToUpdate.RecipeName = newRecipeName;
-                recipeToUpdate.Diet = (Diet)newDiet;
-                recipeToUpdate.Dish = (Dish)newDish;
+                Console.WriteLine("\nOld recipe name: " + recipeToUpdate.RecipeName);
+                string answer = helper.AskString("Change name? (y/n): ").ToLower();
 
+                if(answer == "y")
+                {
+                    changedData = true;
+                    string newRecipeName = helper.AskString("\nEnter new recipe name: ");
+                    recipeToUpdate.RecipeName = newRecipeName;
+                }
+               
+                Console.WriteLine("\nOld recipe Diet: " + recipeToUpdate.Diet);
 
-                dbContext.Recipes.Update(recipeToUpdate);
-                await dbContext.SaveChangesAsync();
-                Console.WriteLine("Item updated successfully");
+                answer = helper.AskString("Change diet? (y/n): ").ToLower();
+
+                if(answer == "y")
+                {
+                    Diet? newDiet = (Diet?)helper.SelectEnumOption<Diet>(0);
+                    if (newDiet == null)
+                    {
+                        Console.WriteLine("0 Entered -> Returning back to menu.");
+                        return;
+                    }
+                    changedData = true;
+                    recipeToUpdate.Diet = (Diet)newDiet;
+                }
+                
+                Console.WriteLine("\nOld recipe dish: " + recipeToUpdate.Dish);
+                answer = helper.AskString("Change dish? (y/n): ").ToLower();
+
+                if(answer == "y")
+                {
+                    Dish? newDish = (Dish?)helper.SelectEnumOption<Dish>(0);
+                    if (newDish == null)
+                    {
+                        Console.WriteLine("Invalid dish option. Please try again.");
+                        return;
+                    }
+                    changedData = true;
+                    recipeToUpdate.Dish = (Dish)newDish;
+                }
+
+                if (changedData)
+                {
+                    dbContext.Recipes.Update(recipeToUpdate);
+                    await dbContext.SaveChangesAsync();
+                    Console.WriteLine("Item updated successfully");
+                }
+                else
+                {
+                    Console.WriteLine("Nothing changed. Returning to menu.");
+                }
             }
             else
             {
                 Console.WriteLine("Couldn't find recipe with your id");
-                Console.ReadLine();
             }
         }
 
@@ -156,19 +212,22 @@ namespace BaseConsoleApp
 
             if(itemToDelete != null)
             {
-                Console.WriteLine("Deleting recipe: " + itemToDelete.RecipeName);
-                Console.ReadLine();
+                string answer = helper.AskString("You are about to delete recipe: " + itemToDelete.RecipeName + " is this fine? (y/n) :").ToLower();
 
-                dbContext.Recipes.Remove(itemToDelete);
-                await dbContext.SaveChangesAsync();
-                Console.WriteLine("Item deleted successfully");
-                Console.ReadLine();
-
+                if(answer == "y")
+                {
+                    dbContext.Recipes.Remove(itemToDelete);
+                    await dbContext.SaveChangesAsync();
+                    Console.WriteLine("Item deleted successfully");
+                }
+                else
+                {
+                    Console.WriteLine("Returning back to menu...");
+                }
             }
             else
             {
                 Console.WriteLine("Couldn't find recipe with your id");
-                Console.ReadLine();
             }
         }
 

@@ -156,7 +156,7 @@ namespace BaseConsoleApp
             var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
             if(user != null)
             {
-                Console.WriteLine("Login to " + user.Username + " is successful");
+                Console.WriteLine("\nLogin to " + user.Username + " is successful");
                 Console.ReadLine();
                 //Creating a new localuser and assigning the required values to its constructor
                 return new LocalUser(user.UserId,user.Username, user.Email, user.Password);
@@ -174,7 +174,7 @@ namespace BaseConsoleApp
             //Using cryptic wizards random word generator https://github.com/cryptic-wizard/random-word-generator
             WordGenerator generator = new WordGenerator();
 
-            //This stops when a new user is created
+            //This only stops when a new user is created
             while (true)
             {
                 Random rand = new Random();

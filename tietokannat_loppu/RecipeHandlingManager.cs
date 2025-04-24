@@ -19,7 +19,6 @@ namespace BaseConsoleApp
             List<string> searchedIngredients = detailsHelper.AskRecipeIngredients();
 
             var dbRecipes = dbHandler.LoadFromDatabaseByIngredients(user, searchedIngredients).Result;
-
             PrintRecipe(dbRecipes);
         }
         public override void SearchRecipesByDishes(LocalUser user)
@@ -28,10 +27,8 @@ namespace BaseConsoleApp
             if(dishOption != null)
             {;
                 var dbRecipes = dbHandler.LoadFromDatabaseByDish(user, (Dish)dishOption).Result;
-
                 PrintRecipe(dbRecipes);
             }
-
         }
         public override void SearchRecipesByDiets(LocalUser user)
         {
@@ -40,23 +37,17 @@ namespace BaseConsoleApp
             if(dietOption != null)
             {
                 var dbRecipes = dbHandler.LoadFromDatabaseByDiet(user, (Diet)dietOption).Result;
-
                 PrintRecipe(dbRecipes);
             }
         }
         public override async Task UpdateRecipeInDb(LocalUser localUser)
         {
-
-            int idRecipeToUpdate = detailsHelper.AskIntNumber("Enter the recipe id you wish to update: ");
+            int idRecipeToUpdate = detailsHelper.AskIntNumber("\nEnter the recipe id you wish to update: ");
             await dbHandler.UpdateRecipeInDb(idRecipeToUpdate, localUser);
-
-
         }
         public override async Task DeleteRecipeWithId(LocalUser localUser)
         {
-            //Recipe id user wishes to delete => maybe change this to the recipe name...
-            int deletedRecipeId = detailsHelper.AskIntNumber("Enter the recipe id you wish to delete: ");
-
+            int deletedRecipeId = detailsHelper.AskIntNumber("\nEnter the recipe id you wish to delete: ");
             await dbHandler.DeleteFromDb(deletedRecipeId, localUser);
         }
     }
