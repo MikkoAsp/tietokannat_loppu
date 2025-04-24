@@ -23,7 +23,6 @@
    1. [EF Core Configuration](#ef-core-configuration)
    2. [Implemented Features](#implemented-features)
    3. [Advanced Queries & Methods](#advanced-queries--methods)
-   4. [Design Choices & Rationale](#design-choices--rationale-2)
 4. [Challenges & Lessons Learned](#challenges--lessons-learned)
 5. [Conclusion](#conclusion)
 
@@ -124,15 +123,15 @@
 - JOIN ingredient i ON ri.ingredient_id = i.ingredient_id
 - WHERE r.recipe_id = 1;
 
-- "Macaronibox"	"Ground meat"	400.00	"g"
-- "Macaronibox"	"Macaroni"	5.50	"dl"
-- "Macaronibox"	"Onion"	1.00	"pcs"
-- "Macaronibox"	"Salt"	1.50	"tsp"
-- "Macaronibox"	"Curry"	1.00	"tsp"
-- "Macaronibox"	"White pepper"	0.20	"tsp"
-- "Macaronibox"	"Paprika powder"	1.00	"tsp"
-- "Macaronibox"	"Egg"	3.00	"pcs"
-- "Macaronibox"	"Milk or meat broth"	7.00	"dl"
+   - "Macaronibox"	"Ground meat"	400.00	"g"
+   - "Macaronibox"	"Macaroni"	5.50	"dl"
+   - "Macaronibox"	"Onion"	1.00	"pcs"
+   - "Macaronibox"	"Salt"	1.50	"tsp"
+   - "Macaronibox"	"Curry"	1.00	"tsp"
+   - "Macaronibox"	"White pepper"	0.20	"tsp"
+   - "Macaronibox"	"Paprika powder"	1.00	"tsp"
+   - "Macaronibox"	"Egg"	3.00	"pcs"
+   - "Macaronibox"	"Milk or meat broth"	7.00	"dl"
 
 - Ylläolevalla kyselyllä haetaan kaikki reseptin ainekset
 
@@ -159,15 +158,16 @@
      - Etsitään kaikki relevantit tiedot, jotka vastaavat user_id:tä
      - Listataan reseptit käyttäjälle nähtäväksi
 - Update
-     -
-
+     - Haetaan tietokannasta resepti
+     - Kysytään käyttäjältä tarvittavat muutokset reseptiin
+     - Päivitetään tietokantaan tarvittavat muutokset reseptille
 - Delete
      - Etsitään käyttäjän omista resepteistä reseptiId:llä resepti joka valitaan poistettavaksi
      - Kysytään haluaako käyttäjä poistaa kyseisen reseptin
      - Resepti poistetaan tietokannasta
        
 - **Advanced Features**:
-- Kategorianmuutos löytyy update Taskista
+- Kategorianmuutos löytyy Task UpdateRecipeInDb (rivi 112 DatabaseManagerista)
 - Haku Dietin ja Dishin perusteella on identtinen
 
    var results = await dbContext.Recipes
@@ -192,6 +192,7 @@
    return results;
 
 ---
+
 ### **Advanced Queries & Methods**
 
 - **LINQ Queries**: Yllämainittu ingredient haku
