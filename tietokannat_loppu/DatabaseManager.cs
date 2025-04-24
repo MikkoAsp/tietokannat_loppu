@@ -8,6 +8,7 @@ namespace BaseConsoleApp
 {
     public class DatabaseManager : IDatabaseHandler
     {
+        bool updatedData;
         TietokannatLoppuContext dbContext;
         IAskDetails helper;
         public DatabaseManager(TietokannatLoppuContext contex, IAskDetails helper)
@@ -108,56 +109,117 @@ namespace BaseConsoleApp
                 Console.WriteLine("Could find your user!");
             }
         }
+        private Recipe? ChangeInstructions(Recipe? recipeToUpdate)
+        {
+            while (true)
+            {
+                Console.WriteLine("\nOld instructions: ");
+                foreach (var item in recipeToUpdate.Instructions.OrderBy(x => x.Step))
+                {
+                    Console.WriteLine(item.Step + ". " + item.CookingInstructions);
+                }
+                int stepNum = helper.AskIntNumberWithMaxMinRange("Enter instruction number to edit or enter 0 to not edit: ", 0, recipeToUpdate.Instructions.Count);
 
+                if (stepNum == 0)
+                {
+                    return recipeToUpdate;
+                }
+                else
+                {
+                    updatedData = true;
+                    foreach (var item in recipeToUpdate.Instructions)
+                    {
+                        if (item.Step == stepNum)
+                        {
+                            string newText = helper.AskString("New instructions for step " + item.Step + ": ");
+                            item.CookingInstructions = newText;
+                            Console.WriteLine("Instruction edited, change another instruction?");
+                        }
+                    }
+                }
+            }
+        }
+        private RecipeIngredient? SelectIngredient(Recipe? recipeToUpdate)
+        {
+            int ingredientId = helper.AskIntNumber("Enter the id you wish to edit: ");
+
+            foreach (var item in recipeToUpdate.RecipeIngredients)
+            {
+                if (item.Ingredient.IngredientId == ingredientId)
+                {
+                    return item;
+                }
+            }
+            return null;
+        }
+        private Recipe? ChangeIngredients(Recipe? recipeToUpdate)
+        {
+            while (true)
+            {
+                Console.WriteLine("Old ingredients in recipe");
+
+                foreach (var item in recipeToUpdate.RecipeIngredients)
+                {
+                    Console.WriteLine(item.Ingredient.IngredientId + ". " + item.Ingredient.IngredientName);
+                }
+
+                string input = helper.AskString("Edit ingredients? (y/n): ").ToLower();
+
+                if(input != "y")
+                {
+                    return recipeToUpdate;
+                }
+
+                RecipeIngredient? ingredientToEdit = SelectIngredient(recipeToUpdate);
+
+                if (ingredientToEdit == null)
+                {
+                    Console.WriteLine("Couldn't find ingredient with your input");
+                    continue;
+                }
+
+                string action = helper.AskString("What do you wish to do with the ingredient? Change = c or Delete = d? Cancel = q").ToLower();
+
+                if(action == "c")
+                {
+                    updatedData = true;
+                    string newName = helper.AskString("Enter the new name: ");
+
+                    ingredientToEdit.Ingredient.IngredientName = newName;
+                }
+                else if(action == "d")
+                {
+                    updatedData = true;
+                    recipeToUpdate.RecipeIngredients.Remove(ingredientToEdit); // Remove from collection
+
+                    dbContext.RecipeIngredients.Remove(ingredientToEdit);
+                }
+            }
+        }
         public async Task UpdateRecipeInDb(int recipeId, LocalUser localUser)
         {
-          var recipeToUpdate = await dbContext.Recipes
+            updatedData = false;
+            Recipe? recipeToUpdate = await dbContext.Recipes
                 .Include(recipe => recipe.Instructions)
+                .Include(recipe => recipe.RecipeIngredients).ThenInclude(r => r.Ingredient)
                 .Where(x => x.UserId == localUser.Id)
                 .FirstOrDefaultAsync(recipe => recipe.RecipeId == recipeId);
 
             if (recipeToUpdate != null)
             {
-                bool changedData = false;
-
-                Console.WriteLine("\nOld instructions: ");
-
-                foreach (var item in recipeToUpdate.Instructions)
-                {
-                    Console.WriteLine(item.Step + ". " + item.CookingInstructions);
-                }
-                while (true)
-                {
-                    int stepNum = helper.AskIntNumberWithMaxMinRange("Enter instruction number to edit or enter 0 to not edit: ", 0, recipeToUpdate.Instructions.Count);
-
-                    if (stepNum == 0)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        foreach(var item in recipeToUpdate.Instructions)
-                        {
-                            if(item.Step == stepNum)
-                            {
-                                string newText = helper.AskString("New instructions for step " + item.Step + ": ");
-                                item.CookingInstructions = newText;
-                                Console.WriteLine("Item edited edit another?");
-                            }
-                        }
-                    }
-                }
+                recipeToUpdate = ChangeIngredients(recipeToUpdate);
+                recipeToUpdate = ChangeInstructions(recipeToUpdate);
 
                 Console.WriteLine("\nOld recipe name: " + recipeToUpdate.RecipeName);
                 string answer = helper.AskString("Change name? (y/n): ").ToLower();
 
-                if(answer == "y")
+                if (answer == "y")
                 {
-                    changedData = true;
+                    updatedData = true;
                     string newRecipeName = helper.AskString("\nEnter new recipe name: ");
                     recipeToUpdate.RecipeName = newRecipeName;
                 }
-               
+
                 Console.WriteLine("\nOld recipe Diet: " + recipeToUpdate.Diet);
 
                 answer = helper.AskString("Change diet? (y/n): ").ToLower();
@@ -170,7 +232,7 @@ namespace BaseConsoleApp
                         Console.WriteLine("0 Entered -> Returning back to menu.");
                         return;
                     }
-                    changedData = true;
+                    updatedData = true;
                     recipeToUpdate.Diet = (Diet)newDiet;
                 }
                 
@@ -185,11 +247,11 @@ namespace BaseConsoleApp
                         Console.WriteLine("Invalid dish option. Please try again.");
                         return;
                     }
-                    changedData = true;
+                    updatedData = true;
                     recipeToUpdate.Dish = (Dish)newDish;
                 }
 
-                if (changedData)
+                if (updatedData)
                 {
                     dbContext.Recipes.Update(recipeToUpdate);
                     await dbContext.SaveChangesAsync();

@@ -78,7 +78,7 @@ namespace BaseConsoleApp
             while (true)
             {
                 Console.WriteLine("Create a new user or login to existing one with email and password");
-                string[] loginOptions = { "Create new user", "Login to Existing user","Debug: login to default account" };
+                string[] loginOptions = { "Create new user", "Login to Existing user","Debug: login to default account(created in insert)" };
                 LoginOption option = (LoginOption)PrintMenuOptions(loginOptions, "Login to existing user with email and password or create a new user.\n");
 
                 if (option == LoginOption.CreateUser)
